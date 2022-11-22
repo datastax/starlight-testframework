@@ -1,0 +1,8 @@
+---
+- name: Start docker container of Prometheus and Grafana servers 
+  docker_compose:
+    project_src: "{{ tgt_nbtf_monitor_homedir }}"
+    state: present
+  register: dc_output
+- debug: "msg={{ dc_output }}"
+  when: show_debug_msg|bool

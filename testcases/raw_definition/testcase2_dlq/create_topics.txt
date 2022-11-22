@@ -1,0 +1,10 @@
+admin tenants create MYTENANT2
+admin namespaces create MYTENANT2/NS2
+admin namespaces create MYTENANT2/DLQ
+admin topics create-partitioned-topic persistent://MYTENANT2/NS2/PERF.TEST.TOPIC.P3 -p 3
+admin namespaces set-auto-topic-creation -e -t non-partitioned MYTENANT2/DLQ
+admin namespaces set-auto-subscription-creation -e MYTENANT2/DLQ
+admin topics create-subscription -p "jms.filtering=true" -p "jms.selector= TriggerEventType IN ('AA','AL','01','02','06','07','08','10','12','13','CE') OR ( TEST_MSG_BUCKET <= 73) " -s PERF.TEST.TOPIC.P3:PERF.TEST.Q.CON-168697 persistent://MYTENANT2/NS2/PERF.TEST.TOPIC.P3
+#3000 ibmr/2 part, 2.5x obmr
+admin topics set-publish-rate -m 1500 persistent://MYTENANT2/NS2/PERF.TEST.TOPIC.P3
+admin topics set-subscription-dispatch-rate -md 3000 persistent://MYTENANT2/NS2/PERF.TEST.TOPIC.P3

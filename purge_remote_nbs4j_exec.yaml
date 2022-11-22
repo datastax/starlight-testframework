@@ -1,0 +1,57 @@
+###
+# Copyright DataStax, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+###
+
+- hosts: pulsarClient
+  gather_facts: true
+  any_errors_fatal: true
+  become: "{{ sudo_needed }}"
+  tasks:
+    - pause:
+        prompt: << CAUTION >> This will kill remote NB executions and clean up history logs. Please confirm you want to proceed! Press return to continue. Press Ctrl+c and then "a" to abort
+        
+    - name: Get the process IDs of the NBS4J process on the remote host
+      shell: "{% if sudo_needed|bool %}sudo {% endif %}ps -ef | grep -v grep | grep {{ nb_exec_name }} | awk '{print $2}'"
+      register: pids_srv_cmd
+      when: (op_types is not defined or 'all' in op_types or 'pid' in op_types)
+    - debug: msg="pids_srv_cmd.failed - {{ pids_srv_cmd.failed }}"
+      when: show_debug_msg|bool and (op_types is not defined or 'all' in op_types or 'pid' in op_types)
+
+    - name: Kill the process IDs 
+      shell: "{% if sudo_needed|bool %}sudo {% endif %}kill -9 {{ item }}"
+      register: kill_pid_cmd
+      with_items:
+        - "{{ pids_srv_cmd['stdout_lines'] }}"
+      ignore_errors: yes
+      when: |
+        (op_types is not defined or 'all' in op_types or 'pid' in op_types) and 
+        not pids_srv_cmd['failed'] and 
+        pids_srv_cmd['stdout_lines']|length > 0
+    - debug: msg="kill_pid_cmd - {{ kill_pid_cmd }}"
+      when: show_debug_msg|bool and (op_types is not defined or 'all' in op_types or 'pid' in op_types)
+
+    - name: Purge the accumulated NB logs from history NB executions
+      shell: "{% if sudo_needed|bool %}sudo -u {{ nbtf_user }} {% endif %}rm -rf {{ tgt_nbtf_nblog_dir }}/*"
+      register: rm_log_cmd
+      when: (op_types is not defined or 'all' in op_types or 'log' in op_types)
+    - debug: msg="rm_log_cmd.failed - {{ rm_log_cmd.failed }}"
+      when: show_debug_msg|bool and (op_types is not defined or 'all' in op_types or 'log' in op_types)
+
+    - name: Delete the all NB file on remote if op_types=all
+      shell: "{% if sudo_needed|bool %}sudo -u {{ nbtf_user }} {% endif %}rm -rf {{ tgt_nbtf_homedir }}/*"
+      register: rm_del_cmd
+      when: ('all' in op_types)
+    - debug: msg="rm_del_cmd.failed - {{ rm_del_cmd.failed }}"
+      when: show_debug_msg|bool and (op_types is not defined or 'all' in op_types or 'log' in op_types)

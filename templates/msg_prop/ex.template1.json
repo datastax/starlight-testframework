@@ -1,0 +1,6 @@
+{
+    "TEST_MSG_BUCKET(int)": "{nbb_msg_prop_test_bukcket}",
+    "XAccessCode(string)": "B2",
+    "XMsgSource(string)": "GNS",
+    "XPickupType(string)": "EF"
+}

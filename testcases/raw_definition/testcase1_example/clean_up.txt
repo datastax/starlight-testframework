@@ -1,0 +1,5 @@
+## Example of cleanup after a testcase run
+admin topics delete-partitioned-topic persistent://MYTENANT/NS1/PERF.TEST.TOPIC.P2
+admin namespaces delete MYTENANT/NS1
+admin tenants delete MYTENANT
+admin tenants list

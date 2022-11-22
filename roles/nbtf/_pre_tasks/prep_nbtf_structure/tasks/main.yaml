@@ -1,0 +1,34 @@
+- name: Create the specified user group for executing the NB testing framework
+  group: 
+    name: "{{ nbtf_user_group }}"
+    system: yes
+    state: present
+
+- name: Create the specified user for executing the NB testing framework
+  user: 
+    name: "{{ nbtf_user }}"
+    create_home: false
+    system: yes
+    group: "{{ nbtf_user_group }}"
+    state: present
+
+- name: Create the folder structure of the NB testing framework
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ nbtf_user }}"
+    group: "{{ nbtf_user_group }}"
+    mode: "{{ file_permission_mode }}"
+    recurse: yes
+  with_items:
+    - "{{ tgt_nbtf_homedir }}"
+    - "{{ tgt_nbtf_bin_dir }}"
+    - "{{ tgt_nbtf_scenario_dir }}/nb_yaml"
+    - "{{ tgt_nbtf_scenario_dir }}/nb_cfg"
+    - "{{ tgt_nbtf_config_dir }}"
+    - "{{ tgt_nbtf_pulsarconn_dir }}"
+    - "{{ tgt_nbtf_nblog_dir }}"
+    - "{{ tgt_nbtf_monitor_homedir }}/prometheus"
+    - "{{ tgt_nbtf_monitor_homedir }}/grafana"
+    # - "{{ tgt_nbtf_nbmetrics_dir }}"
+    # - "{{ tgt_nbtf_bkup_homedir }}"

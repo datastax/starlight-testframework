@@ -1,0 +1,43 @@
+###
+# Copyright DataStax, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+###
+
+- hosts: localhost
+  connection: local
+  tasks:
+    - name: Find out all test case definition name
+      set_fact:
+        testcase_pause_seq: "{{ lookup('file', 'testcases/raw_definition/tc_pause_seq') }}"
+
+- hosts: pulsarClient
+  gather_facts: true
+  any_errors_fatal: true
+  become: "{{ sudo_needed }}"
+  tasks:
+    - name: Create .nosqlbench folder on the remote host
+      file:
+        path: "/home/{{ ansible_ssh_user }}/.nosqlbench"
+        state: directory
+        owner: "{{ nbtf_user }}"
+        group: "{{ nbtf_user_group }}"
+        mode: "{{ file_permission_mode }}"
+    - name: Loop through each test case and execute all UNCOMMENTED test scenarios within the test case
+      include_role: 
+        name: nbtf/remote_process/run_testcases_inseq
+      when: tc_pause_str|length > 0 and not tc_pause_str.startswith('#')
+      with_items:
+        - "{{ hostvars['localhost']['testcase_pause_seq'].split('\n') }}"
+      loop_control:
+        loop_var: tc_pause_str

@@ -1,0 +1,41 @@
+###
+# Copyright DataStax, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+###
+# Test case execution sequence definition file
+# -----------------------------------
+# > each line represents a test case execution schedule
+# > the test case execution is in serial mode
+# > each case execution sequence definition includes the following fileds (colon separated)
+#    0) Test case name (must have a corresponding "test case" subdirectory under "testcases/raw_definition"). 
+#       Otherwise, its execution is ignored
+#    1) The pause time after the execution of the current test case finishes before starting the next test case execution
+#    2) The full path of the pre-task shell script to run before the execution start of the current test
+#         Can use 'glb_default' to point to the global default pre-task shell script at "bash/tc_exec_dft/pre_task.sh"
+#         Can use 'tc_default' to point to the test case specific default pre-task shell script at "testcases/raw_definition/<tc_name>/pre_task.sh"
+#         Will be ignored if none of the pre-task shell script (specified, global default, testcase default) can be found
+#    3) The full path of the post-task shell script to run before the execution start of the current test
+#         Can use 'glb_default' to point to the global default pre-task shell script at "bash/tc_exec_dft/post_task.sh"
+#         Can use 'tc_default' to point to the test case specific default pre-task shell script at "testcases/raw_definition/<tc_name>/post_task.sh"
+#         Will be ignored if none of the post-task shell script (specified, global default, testcase default) can be found
+# -----------------------------------
+#
+### Start the consumers with some "offline", because some are commented-out in the "definition" file
+testcase4_consumers_backlog,2m,tc_default,
+### After 2mins, start the producers, this will cause a backlog of messages for the offline consumers
+testcase4_producers,5m,tc_default,
+### After running the producers for 5 mins, start the "offline" consumers to catchup
+testcase4_consumers_catchup,2m,tc_default,
+### All consumers should be running now
+# End of tests

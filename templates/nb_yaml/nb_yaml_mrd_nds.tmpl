@@ -1,0 +1,59 @@
+#
+# NB testing scenario definition file for receiving message from a (non temporary) destination
+# - non-durable, shared subscription
+# ------------------------------------
+#
+
+# document level parameters that apply to all Pulsar client types:
+params:
+  temporary_dest: "false"
+  async_api: "<TMPL-ASYNC_API>"
+  txn_batch_num: "<TMPL-TXN_BATCH_NUM>"
+  blocking_msg_recv: "<TMPL-BLOCKING_MSG_RECV>"
+
+blocks:
+  ###################
+  # message receiver/consumer/subscriber from a topic or a queue
+  # - subscription type: non-durable, shared 
+  #------------------
+  - name: "msg-read-block"
+    tags:
+      phase: "mrs"
+    statements:
+      - name: "s1"
+        optype: "msg_read_shared"
+        dest_type: "<TMPL-DEST_TYPE>"
+        dest_name: "<TMPL-DEST_NAME>"
+
+        ## Subscription name
+        subscription_name: "<TMPL-SUB_NAME>"
+
+        ## (Optional) Receive message without wait
+        no_wait: "false"
+
+        ## (Optional) Message acknowledgement ratio
+        msg_ack_ratio: "<TMPL-MSG_ACK_RATIO>"
+
+        ## (Optional) Simulate slow consumer acknowledgement
+        # must be non-negative numbers. negative numbers will be treated as 0
+        # 0 - means no simulation
+        # positive value - the number of seconds to pause before acknowledgement
+        slow_ack_in_sec: "<TMPL-SLOW_ACK_IN_SEC>"
+
+        #####
+        ## (Optional) Statement level settings for Consumer
+        #
+        ## AckTimeout value
+        consumer.ackTimeoutMillis: "<TMPL-ACK_TIMEOUT>"
+
+        ## DLQ policy (JSON string)
+        #  NOTE: must use single quote (') since the value is a JSON string
+        consumer.deadLetterPolicy: '<TMPL-DLQ_POLICY>'
+
+        ## AckTimeout Redelivery policy (JSON string)
+        #  NOTE: must use single quote (') since the value is a JSON string
+        consumer.ackTimeoutRedeliveryBackoff: '<TMPL-ACK_TIMEOUT_REDELIVERY>'
+
+        ## NegativeAck Redelivery policy (JSON string)
+        #  NOTE: must use single quote (') since the value is a JSON string
+        consumer.negativeAckRedeliveryBackoff: '<TMPL-NEG_ACK_REDELIVERY>'

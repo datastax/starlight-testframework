@@ -1,0 +1,11 @@
+## Commented out for now
+
+TEST.JMS.TOPIC.P3:TEST.JMS.Q persistent://MYTENANT3/NS3/TEST.JMS.TOPIC.P3
+admin topics unsubscribe -s PERF.TEST.Q.CON-168697.DLQ MYTENANT2/DLQ/PERF.TEST.Q.CON-168697.DLQ
+admin topics delete MYTENANT2/DLQ/PERF.TEST.Q.CON-168697.DLQ
+admin topics unsubscribe -s TEST.JMS.TOPIC.P3:TEST.JMS.Q MYTENANT3/NS3/TEST.JMS.TOPIC.P3
+admin topics delete-partitioned-topic persistent://MYTENANT3/NS3/TEST.JMS.TOPIC.P3
+admin namespaces delete MYTENANT3/NS3
+admin namespaces delete MYTENANT3/DLQ
+admin tenants delete MYTENANT3
+admin tenants list

@@ -1,0 +1,283 @@
+#. /bin/bash
+
+
+#
+# NOTE: this script is used for running a testing scenario using NB S4J driver
+#
+#
+
+
+usage() {
+   echo
+   echo "Usage: nbs4j_cmd.sh"        
+   echo "         [-h]"
+   echo "         -nbCfg <nb_cfg_file>"
+   echo "         -webUrl <pulsar_web_url>"
+   echo "         -svcUrl <pulsar_service_url>"
+   echo "         -scnFile <nb_scenario_yaml_file>"
+   echo "         -tagNam <nb_scenario_tag_name>"
+   echo "         -cycNum <nb_cycle_number>"
+   echo "         -thrNum <nb_thread_number>"
+   echo "         -strdNum <nb_strides_number>"
+   echo "         -numConn <num_of_connections>"
+   echo "         -numSess <num_of_sessions_per_connection>"
+   echo "         [-sessMod] <session_mode>"
+   echo "         [-trackMsgRespCnt] <tracking_message_response_count>"
+   echo "         [-cycRateThread] <nb_cycle_rate_per_thread>"
+   echo "         [-logDir] <nb_log_directory>"
+   echo "         [-logLvl] <nb_log_level>"
+   echo "         [-pgeMetricsSrv] <prometheus_graphite_exporter_server>"
+   echo "         [-tcsName] <test_case_scenario_name>"
+   echo "         [-ctrlExec] <controlled_nb_execution>"
+   echo "         [-strictMsgErrHandling] <strict_msgerr_handling>"
+   echo "       ----------------------------------------"
+   echo "       [-h] : show usage info"
+   echo "       -nbCfg : NB S4J configuration file"
+   echo "       -webUrl : web url of the Pulsar cluster"
+   echo "       -svcUrl : service url of the Pulsar cluster"
+   echo "       -scnFile : NB S4J scenario yaml file full path"
+   echo "       -cycNum : Total nubmer of NB execution cycles"
+   echo "       -thrNum : Total number of NB execution threads"
+   echo "       -strdNum : The number of NB execution strides."
+   echo "       -numConn : Nubmer of JMS connections during the NB S4J scenario execution"
+   echo "       -numSess : Nubmer of JMS sessions per JMS connection during the NB S4J scenario execution"
+   echo "       [-sessMod] : JMS session mode string [auto_ack(default)|client_ack|dups_ok_ack|individual_ack|transact_ack]"
+   echo "       [-trackMsgRespCnt] : Whether to track message response count"
+   echo "       [-tagNam] : NB S4J scenario tag name (to identify execution blocks)"
+   echo "       [-cycRateThread] : NB execution cycle rate per thread"
+   echo "       [-logDir] : NB execution log directory"
+   echo "       [-logLvl] : NB execution log leve [-v|-vv|-vvv]"
+   echo "       [-pgeMetricsSrv] : Prometheus graphite exporter server address (<host>:<port>)"
+   echo "       [-tcsName] : Test case and scenario name"
+   echo "       [-ctrlExec] : Controlled NB execution"
+   echo "          - 0 means the controlled NB execution is DISABLED"
+   echo "          - Positive number means the specififed duration (in seconds) of the controlled NB execution"
+   echo "       [-strictMsgErrHandling] : Whether to do strict error handling for message receiving/sending"
+}
+
+if [[ $# -eq 0 || $# -gt 38 ]]; then
+   usage
+   exit 10
+fi
+
+while [[ "$#" -gt 0 ]]; do
+   case $1 in
+      -h) usage; exit 0 ;;
+      # mandatory parameters
+      -nbCfg) nbConfigFile="$2"; shift ;;
+      -webUrl) pulsarWebUrl="$2"; shift ;;
+      -svcUrl) pulsarSvcUrl="$2"; shift ;;
+      -scnFile) nbYamlFile="$2"; shift ;;
+      -cycNum) totalCycleNum="$2"; shift ;;
+      -thrNum) totalThreadNum="$2"; shift ;;
+      -strdNum) stridesNum="$2"; shift ;;
+      -numConn) numJmsConn="$2"; shift ;;
+      -numSess) numJmsSessPerConn="$2"; shift ;;
+      # optional parameters
+      -sessMod) jmsSessionMode="$2"; shift ;;
+      -trackMsgRespCnt) trackMsgRespCnt=$(echo $2 | tr '[:upper:]' '[:lower:]'); shift ;;
+      -tagNam) nbYamlTag="$2"; shift ;;
+      -cycRateThread) cycleRate="$2"; shift ;;
+      -logDir) nbLogDir="$2"; shift ;;
+      -logLvl) nbLogLvl="$2"; shift ;;
+      -pgeMetricsSrv) pgeMetricsSrv="$2"; shift ;;
+      -tcsName) tcsName="$2"; shift ;;
+      -ctrlExec) ctrlExecStr="$2"; shift ;;
+      -strictMsgErrHandling) strictMsgErrHandling="$2"; shift ;; 
+      *) echo "Unknown parameter passed: $1"; exit 20 ;;
+   esac
+   shift
+done
+
+if [[ "${nbConfigFile}" == "" || "${pulsarWebUrl}" == "" || "${pulsarSvcUrl}" == "" || 
+      "${nbYamlFile}" == "" || "${totalCycleNum}" == "" || "${totalThreadNum}" == "" || 
+      "${stridesNum}" == "" || "${numJmsConn}" == "" || "${numJmsSessPerConn}" == "" ]] 
+then
+  echo "[ERROR] Invalid empty value for the following mandatory input parameters." 
+  echo "        ('-nbCfg', '-webUrl', '-svcUrl', '-scnFile', '-cycNum', '-thrNum', '-strdNum', '-numConn', '-numSess')"
+  exit 40
+fi
+
+# When JMS session mode is not explicitly provided, it must be one of the following values
+if [[ "${jmsSessionMode}" != "" ]]; then
+   if ! [[ "${jmsSessionMode}" == "auto_ack" || "${jmsSessionMode}" == "client_ack" ||
+           "${jmsSessionMode}" == "dups_ok_ack" || "${jmsSessionMode}" == "individual_ack" ||
+           "${jmsSessionMode}" == "transact_ack" ]]
+   then
+      echo "[ERROR] Invalid value for the input parameter '-sessMod'." 
+      echo "        Valid values are: 'auto_ack(default)', 'client_ack', 'dups_ok_ack', 'individual_ack', and 'transact_ack'"
+      exit 50
+   fi
+fi
+
+
+re='^[1-9][0-9]*(k|K|m|M|b|B)?$'
+re1='^[0-9]+$'
+re2='^[1-9][0-9]*$'
+re3='^[0-9]+(s|m|h|d)?$'
+re4='^[0-9]+(k|K|m|M|b|B)?$'
+re5='(true|false)'
+
+#
+# Cycle count must be in format "<positive_number>(k|K|m|M|b|B)"
+#
+if ! [[ ${totalCycleNum} =~ $re ]]
+then
+   echo "[ERROR] Invalid value for the following input parameter of '-cycNum'."
+   echo "        Valid value format is: <positive_number>(k|K|m|M|b|B)." 
+   exit 60
+fi
+
+#
+# Thread number, strides number, connection number, and session number must be positive number
+#
+if ! [[ ${totalThreadNum} =~ $re2 && ${stridesNum} =~ $re2 && ${numJmsConn} =~ $re2 && ${numJmsSessPerConn} =~ $re2 ]]
+then
+  echo "[ERROR] Invalid value for the following input parameters. Postive number value is expected." 
+  echo "        ('-thrNum', '-strdNum', '-numConn', '-numSess')"
+  exit 70
+fi
+
+#
+# 'trackMsgRespCnt' and 'strictMsgErrHandling' must be boolean (true or false)
+#
+if ! [[ ${trackMsgRespCnt} =~ $re5 && ${strictMsgErrHandling} =~ $re5 ]]; then
+  echo "[ERROR] Invalid value for the following input parameters. Boolean value (true or false) is expected." 
+  echo "        ('-trackMsgRespCnt', '-strictMsgErrHandling'"
+  exit 80
+fi
+
+ctrlExecEnable=0
+if [[ "${ctrlExecStr// }" != "" ]]; then
+   if ! [[ ${ctrlExecStr} =~ $re3 ]]; then
+      echo "[ERROR] Invalid value for the following input parameter of '-ctrlExec'."
+      echo "        Valid value format is: [non_negative_number](s|m|h|d)." 
+      exit 90
+   else
+      strLen=${#ctrlExecStr}
+
+      if [[ ${strLen} -eq 1 ]]; then
+         ctrlExecTimeInMillisec=$ctrlExecStr
+      else 
+         unitChar=$(echo "${ctrlExecStr: -1}")
+
+         if [[ ${unitChar} =~ $re1 ]]; then
+            ctrlExecTimeInMillisec=$ctrlExecStr
+         else
+            ctrlExecInputVal=${ctrlExecStr:0:$((strLen-1))}
+               
+            if [[ "$unitChar" == "s" ]]; then
+               ctrlExecTimeInMillisec=$((ctrlExecInputVal*1000))
+            elif [[ "$unitChar" == "m" ]]; then
+               ctrlExecTimeInMillisec=$((ctrlExecInputVal*1000*60))
+            elif [[ "$unitChar" == "h" ]]; then
+               ctrlExecTimeInMillisec=$((ctrlExecInputVal*1000*60*60))
+            elif [[ "$unitChar" == "d" ]]; then
+               ctrlExecTimeInMillisec=$((ctrlExecInputVal*1000*60*60*24))
+            else
+               echo "[ERROR] Invalid input value unit for '-ctrlExec' parameter, must be one of (s,m,h,d)."
+               exit 100
+            fi
+         fi
+      fi
+   fi
+
+   if [[ ${ctrlExecTimeInMillisec} -gt 0 ]]; then
+      ctrlExecEnable=1
+   fi
+fi
+
+
+#
+# Cycle rate per thread must be 0 or in format "<positive_number>(k|K|m|M|b|B)"
+#
+cycleRateSpecified=0
+if [[ "${cycleRate}" != "" ]]; then
+   if ! [[ ${cycleRate} =~ $re4 ]]
+   then
+      echo "[ERROR] Invalid value for the following input parameter of '-cycRateThread'."
+      echo "        Valid value format is: [non_negative_number](k|K|m|M|b|B)." 
+      exit 110
+   fi
+   cycleRateSpecified=1
+fi
+
+
+if [[ "${nbLogLvl}" != "" ]]; then
+   if ! [[ "${nbLogLvl}" == "" ||
+           "${nbLogLvl}" == "-v" || 
+           "${nbLogLvl}" == "-vv" ||
+           "${nbLogLvl}" == "-vvv" ]]; then
+      echo "[ERROR] Invalid value for the input parameter '-logLvl'." 
+      echo "        Valid values are: ''(default/warn), '-v(info)', '-vv(debug)', '-vvv(trace)'"
+      exit 120
+   fi
+fi
+
+NB_SUB_CMD="run"
+if [[ ${ctrlExecEnable} -eq 1 ]]; then
+   NB_SUB_CMD="start"
+fi
+
+NB_SCN_EXEC_BASE="<TMPL-NB_EXEC_PATH> ${NB_SUB_CMD} driver=s4j"
+
+
+if [[ ${ctrlExecEnable} -gt 0 ]]; then
+   NB_SCN_EXEC_BASE="${NB_SCN_EXEC_BASE} alias=nb_activity"
+fi
+
+NB_SCN_EXEC_BASE="${NB_SCN_EXEC_BASE} \
+config=${nbConfigFile} web_url=${pulsarWebUrl} service_url=${pulsarSvcUrl} \
+yaml=${nbYamlFile} cycles=${totalCycleNum} threads=${totalThreadNum} strides=${stridesNum} \
+num_conn=${numJmsConn} num_session=${numJmsSessPerConn}"
+
+if [[ "${nbYamlTag// }" != "" ]]; then
+   NB_SCN_EXEC_BASE="${NB_SCN_EXEC_BASE} tags=${nbYamlTag}"
+fi
+
+if [[ "${jmsSessionMode// }" != "" ]]; then
+   NB_SCN_EXEC_BASE="${NB_SCN_EXEC_BASE} session_mode=${jmsSessionMode}"
+fi
+
+if [[ ${ctrlExecEnable} -gt 0 ]]; then
+   NB_SCN_EXEC_BASE="${NB_SCN_EXEC_BASE} max_s4jop_time=$(( ctrlExecTimeInMillisec / 1000 ))"
+fi
+
+if [[ "${trackMsgRespCnt// }" != "" ]]; then
+   NB_SCN_EXEC_BASE="${NB_SCN_EXEC_BASE} track_msg_cnt=${trackMsgRespCnt}"
+fi
+
+if [[ "${strictMsgErrHandling// }" != "" ]]; then
+   NB_SCN_EXEC_BASE="${NB_SCN_EXEC_BASE} strict_msg_error_handling=${strictMsgErrHandling}"
+fi
+
+# Cycle rate (per thread) is specified
+if [[ ${cycleRateSpecified} -gt 0 ]]; then
+   NB_SCN_EXEC_BASE="${NB_SCN_EXEC_BASE} cyclerate_per_thread=true cyclerate=${cycleRate}"
+fi
+
+if [[ "${nbLogDir// }" != "" ]]; then
+   NB_SCN_EXEC_BASE="${NB_SCN_EXEC_BASE} --logs-dir=${nbLogDir}"
+fi 
+if [[ "${nbLogLvl// }" != "" ]]; then
+   NB_SCN_EXEC_BASE="${NB_SCN_EXEC_BASE} ${nbLogLvl}"
+fi 
+
+if [[ "${pgeMetricsSrv// }" != "" ]]; then
+   NB_SCN_EXEC_BASE="${NB_SCN_EXEC_BASE} --report-graphite-to ${pgeMetricsSrv}"
+   if [[ "${tcsName// }" != "" ]]; then
+      NB_SCN_EXEC_BASE="${NB_SCN_EXEC_BASE} --metrics-prefix nbtf_${tcsName}"
+   else
+      NB_SCN_EXEC_BASE="${NB_SCN_EXEC_BASE} --metrics-prefix nbtf_s4j"
+   fi
+fi 
+
+if [[ ${ctrlExecEnable} -gt 0 ]]; then
+   NB_SCN_EXEC_BASE="${NB_SCN_EXEC_BASE} \
+      waitmillis $ctrlExecTimeInMillisec \
+      forceStop nb_activity"
+fi
+
+echo
+#echo " $NB_SCN_EXEC_BASE"
+eval " $NB_SCN_EXEC_BASE"

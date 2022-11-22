@@ -1,0 +1,44 @@
+#
+# NB testing scenario definition file for message to a (non temporary) 
+# destination - topic or queue, transaction enabled or not (configurable)
+# ------------------------------------
+#
+
+bindings:
+  #  Used in the msg_prop file to create a random number which can be used in JMS Message Properties for JMS filtering simulations
+  nbb_msg_prop_test_bucket: HashRange(100)
+
+  # Do NOT use this one (big performance drop) compared with CharBufImage() function as below
+  ###nbb_msg_payload: AlphaNumericString(WeightedLongs("<TMPL-MSG_PAYLOAD_DISTRO_STRING>"));
+
+  # Use this one!
+  nbb_msg_payload: CharBufImage('A-Za-z0-9 _|/',1000000,WeightedLongs("<TMPL-MSG_PAYLOAD_DISTRO_STRING>"));
+  
+# document level parameters that apply to all Pulsar client types:
+params:
+  temporary_dest: "false"
+  async_api: "<TMPL-ASYNC_API>"
+  txn_batch_num: "<TMPL-TXN_BATCH_NUM>"
+
+blocks:
+  ###################
+  # message sender/producer/publisher to a topic
+  #------------------
+  - name: "msg-send-block"
+    tags:
+      phase: "mst"
+    statements:
+      - name: "s1"
+        optype: "msg_send"
+        dest_type: "<TMPL-DEST_TYPE>"
+        dest_name: "<TMPL-DEST_NAME>"
+
+        ## (Optional) JMS properties, predefined or customized (in JSON format).
+        #  NOTE: must use single quote (') since the value is a JSON string
+        msg_property: '<TMPL-MSG_PROP_JSON_STR>'
+
+        ## (Optional) JMS message types, default to be BYTES.
+        msg_type: "byte"
+
+        ## (Mandatory) JMS message body. Value depends on msg_type.
+        msg_body: "{nbb_msg_payload}"

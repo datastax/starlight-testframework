@@ -1,0 +1,9 @@
+## Commented out for now
+admin topics unsubscribe -s PERF.TEST.Q.CON-168697.DLQ MYTENANT2/DLQ/PERF.TEST.Q.CON-168697.DLQ
+admin topics delete MYTENANT2/DLQ/PERF.TEST.Q.CON-168697.DLQ
+admin topics unsubscribe -s PERF.TEST.TOPIC.P3:PERF.TEST.Q.CON-168697 MYTENANT2/NS2/PERF.TEST.TOPIC.P3
+admin topics delete-partitioned-topic persistent://MYTENANT2/NS2/PERF.TEST.TOPIC.P3
+admin namespaces delete MYTENANT2/NS2
+admin namespaces delete MYTENANT2/DLQ
+admin tenants delete MYTENANT2
+admin tenants list

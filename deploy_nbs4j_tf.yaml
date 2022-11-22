@@ -1,0 +1,134 @@
+###
+# Copyright DataStax, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+###
+
+---
+#
+# Generate NB scanario yaml files for all defined testing scenarios within all test cases
+#
+
+- hosts: localhost
+  connection: local
+  vars:
+    pge_monitor_srv: |
+      {% if enable_builtin_monitoring|bool and groups['monitoring'] is defined and groups['monitoring']|length > 0 %}
+      {{ groups['monitoring'][0] }}:9109
+      {% else %}
+      {{ external_graphite_srv_ulr }}
+      {% endif %}
+  tasks:
+    - name: If needed, remove the local NB files generated from the previous run
+      shell: |
+        bash/clean_gend_local_tc.sh
+      when: rmLocalNBFiles is defined and rmLocalNBFiles|bool
+    - name: Generate NB S4J files from test case raw definitions and template files
+      shell: |
+        bash/process_tc_rawdef.sh \
+          -tcNamePattern "{{ tcNamePattern  }} " \
+          -useAsync "{{ use_async_s4j_api }} " \
+          -blockingMsgRecv "{{ use_blocking_msg_recv }} " \
+          -simuUserPwd "{{ auth_user_password_simulation }} " \
+          -useTransStickyPart "{{ use_trans_sticky_part }} " \
+          -jmsPriorityEnable "{{ enable_jms_priority }} " \
+          -jmsPriorityMapping "{{ jms_priority_mapping }} " \
+          -brkrSvcUrl "{{ pulsar_svc_url }} " \
+          -webSvcUrl "{{ pulsar_web_url }} " \
+          -tgtNbtfHomeDir "{{ tgt_nbtf_homedir }}" \
+          -dftNbStrdNum "{{ nb_strides_num_deft }}" \
+          -dftCmprsType "{{ msg_compression_dft }} " \
+          -dftPrdBatching "{{ prd_batching_dft }}" \
+          -dftMsgPayloadStr "{{ msg_payload_distro_dft }}" \
+          -dftMsgRespCntTracking "{{ track_msg_cnt_dft }}" \
+          -dftStrictMsgErrHandling "{{ strict_msgerr_handling }}" \
+          -dftSlowAckInSec "{{ slow_ack_in_sec }}" \
+          -dftAckTimeoutInSec "{{ ack_timeout_in_sec }}" \
+          -dftDlqPolicy "{{ dft_dlq_policy }}" \
+          -dftAckTimeoutRedePolicy "{{ dft_ack_timeout_redelivery_backoff_policy }}" \
+          -dftNegAckRedePolicy "{{ dft_neg_ack_redelivery_backoff_policy }}" \
+          -nbLogLvl "{{ nb_log_lvl }} " \
+          -jwtTokenFileNoPath "{{ pulsar_clnt_jwt_token_name }}" \
+          -tlsCaCertFileNoPath "{{ pulsar_clnt_trusted_cert_name }}" \ 
+          -pgeMetricsSrv "{{ pge_monitor_srv|trim }}"
+      register: processTcRawDefCmdCmd
+      when: not (skipRawTcProc is defined and skipRawTcProc|bool)
+    - debug: msg="(processTcRawDefCmdCmd.failed - {{ processTcRawDefCmdCmd.failed }}"
+      when: show_debug_msg|bool and not (skipRawTcProc is defined and skipRawTcProc|bool)
+
+######################################################
+# NOTE: Using Ansible to do local processing is not efficient.
+#       Use the bash script based approach instead (as above)
+#
+#       BUT DO NOT delete this code and relevant roles !!!
+#-----------------------------------------------------
+# - hosts: localhost
+#   connection: local
+#   tasks:
+#     - name: Set the token value into a variable if "auth_user_password_simulation" is enabled
+#       set_fact:
+#         dft_jwt_token_value: "{{ lookup('file', 'pulsar_conn/' + pulsar_clnt_jwt_token_name) }}"
+#       when: auth_user_password_simulation|bool
+#     # - debug: msg="{{ dft_jwt_token_value }}"
+#     #   wwhen: show_debug_msg|bool
+#     - name: Clean up the generated test scenario files from the previous run
+#       file: 
+#         path: "{{ item }}"
+#         state: absent
+#       with_fileglob: "testcases/_generated_nbscn_files_/*"
+#     - name: Find out all test case definition name
+#       find: 
+#         paths: "testcases/raw_definition"
+#         file_type: directory
+#       register: testcases
+#     # - debug: msg="testcases= {{ testcases.files }}"
+#     #   when: show_debug_msg|bool
+#     - name: Generate the NB test scenario definition yaml files for each test case
+#       include_role: 
+#         name: local_process/proc_test_case
+#       vars:
+#         testcase_name: "{{ item.path.split('/')[2] }}"
+#       with_items:
+#         - "{{ testcases.files }}"
+######################################################
+      
+- hosts: pulsarClient
+  any_errors_fatal: true
+  become: "{{ sudo_needed }}"
+  pre_tasks:
+    #
+    # Generate the NB S4J test scenario CLI command file from the template
+    # 
+    # --------------------------------
+    - name: Copy "nb_cmd" template file to the remote host
+      copy:
+        src: "templates/nb_cmd/nbs4j_cmd.tmpl"
+        dest: "{{ tgt_nbtf_bin_dir }}/nbs4j_cmd.sh"
+        owner: "{{ nbtf_user }}"
+        group: "{{ nbtf_user_group }}"
+        mode: "{{ file_permission_mode }}"
+    - name: Replace template place holder in nb_cmd template
+      replace:
+          path: "{{ tgt_nbtf_bin_dir }}/nbs4j_cmd.sh"
+          regexp: "{{ item.regexp }}"
+          replace: "{{ item.line }}"
+      with_items:
+        - { regexp: "{{ nbcmdTPH_nbExecPath }}", 
+            line: "{% if nb_exec_name is search('jar') %}java {{ nb_jvm_setting }} -jar {{ tgt_nbtf_bin_dir }}/{{ nb_exec_name }}{% else %}JAVA_OPTS='{{ nb_jvm_setting }}' {{ tgt_nbtf_bin_dir }}/{{ nb_exec_name }}{% endif %}" }
+  tasks:
+    - name: Clean up the NB S4J test scenario related files from the previous run
+      include_role:
+        name: nbtf/remote_process/cleanup_testscns
+    - name: Load the generated NB S4J test scenario related files to the remote host
+      include_role:
+        name: nbtf/remote_process/load_testscns
