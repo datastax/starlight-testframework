@@ -5,5 +5,5 @@ This repo contains a framework and tools that can be used to fully **automated**
 This test framework is based on the [NoSQLBench (NB)](https://github.com/nosqlbench/nosqlbench) utility, with specific drivers for each Starlight client, like [Starlight for JMS (S4J) driver](https://github.com/nosqlbench/nosqlbench/tree/nb4-maintenance).
 
 # Starlight Client Tests
-See **[Starlight-for-Jms](starlight-for-jms/README.md)** for info on JMS workload testing.
+See **[Starlight-for-Jms](starlight-for-jms/)** for info on JMS workload testing.
 
