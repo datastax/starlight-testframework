@@ -1,0 +1,43 @@
+version: "3"
+services:
+  graphite-exporter:
+    container_name: nbtf_prometheus_graphite_exporter
+    image: "prom/graphite-exporter:latest"
+    ports:
+      - "9108:9108"
+      - "9109:9109"
+
+  prometheus:
+    container_name: nbtf_prometheus
+    image: "prom/prometheus:latest"
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yaml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention=365d'
+      - '--storage.tsdb.allow-overlapping-blocks'
+    ports:
+      - "9090:9090"
+    volumes:
+      - "${PROMETHEUS_DATA_DIR:-prometheus}:/prometheus"
+      - "./prometheus/prometheus.yaml:/etc/prometheus/prometheus.yaml"
+    links:
+      - "graphite-exporter"
+
+  grafana:
+    container_name: nbtf_grafana
+    image: "grafana/grafana:latest"
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+    volumes:
+      - "${GRAFANA_DATA_DIR:-grafana}:/var/lib/grafana"
+      - "./grafana/prometheus-datasource.yaml:/etc/grafana/provisioning/datasources/prometheus-datasource.yaml"
+      - "./grafana/dashboards.yaml:/etc/grafana/provisioning/dashboards/dashboards.yaml"
+      - "./grafana/dashboards:/var/lib/grafana/dashboards:ro"
+    links:
+      - "prometheus"
+volumes:
+  grafana:
+  prometheus:

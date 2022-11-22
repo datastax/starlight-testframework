@@ -1,0 +1,71 @@
+#
+# Test case definition file
+# -----------------------------------
+# > each line defines a testing scenario in this test case
+# > each testing scenario definition includes the following fields (comma separated)
+#    0) Test execution flag: 
+#         - this determines which test scenario is going to be executed on which host
+#         - empty value means to be executed on all hosts
+#    1) Client type flag:  P (producer) or C(consumer)
+#    2) Producer batching enabled:  false (default) or true (Only applicable to Producer)
+#    3) Destination type: T(topic) or Q(queue)
+#    4) Destination name
+#    5) Subscription type (Consumer ONLY!)
+#         valid values: 
+#         - ndns (non-durable non-shared)
+#         - dns (durable non-shared) 
+#         - nds (non-durable shared) 
+#         - ds (durable shared)
+#    6) Subscription name (Consumer ONLY!)
+#    7) Number of clients
+#    8) Number of connections
+#    9) Number of sessions per connection
+#   10) JMS session mode
+#         valid values: 
+#         - auto_ack
+#         - client_ack
+#         - dups_ok_ack
+#         - individual_ack
+#         - transact_ack
+#   11) Number of messages per transaction
+#         only applicable when the JMS session mode is 'transact_ack'
+#   12) Message acknowledgement ratio
+#         valid values: [0,1]
+#   13) NB cycle count - the number of total messages to send or receive
+#   14) Cycle rate (empty value or 0 means no rate limit)
+#   15) Controlled execution: whether or not to run NB execution for a specific amount of time
+#         valid values: <number>[s|m|h] (value 0 means NO controlled execution)
+#   16) Message property json template file (Only applicable to Producer)
+#         "default" means to read from the default template file
+#   17) Message property payload distribution string (Producer ONLY!)
+#         "default" means to use the default payload distribution string
+#   18) Compression type of the message payload (Producer ONLY!) 
+#         - Empty value means no compression. 
+#         - Other possible values: LZ4, ZLIB, ZSTD, SNAPPY
+#   19) Simulation for slow acknowledgement (Consumer ONLY!) 
+#         - valid values: non-negative number 
+#           * 0 means no simulation
+#           * positive number means how many seconds to pause before making acknowledgement
+#   20) Acknowledgement Timeout (Consumer ONLY!)
+#         - valid values: non-negative number 
+#           * 0 means no ack timeout
+#           * positive number means ack timeout in seconds
+#   21) DLQ Policy (Consumer ONLY!)
+#         value must be in the following format
+#         - maxRedeliverCount:<int_value>[+deadLetterTopic:<dlq_topic_name>[+initialSubscriptionName:<initial_sub_name>]]
+#   22) Ack Timeout Redelivery Policy (Consumer ONLY!)
+#         value must be in the following format
+#         - minDelayMs:<int_value>+maxDelayMs:<int_value>+multiplier:<float_value>
+#   23) Neg Ack Redelivery Policy (Consumer ONLY!)
+#         same format as "ack timeout redelivery policy"
+#         for NBS4J testing, this is not really needed and always leave it empty
+# -----------------------------------
+# Example Consumer to a queue, shared-durable, sub name "PERF.TEST.TOPIC.P3:PERF.TEST.Q1", 50 clients, 10 connections, 5 sessions per connection, individual_acks, msg ack ratio "1", slow acks "0", Ack timeout "10", DLQ queue and redelivery setup
+pstal03,C,false,Q,persistent://MYTENANT4/NS4/TEST.JMS.TOPIC.P3:TEST.JMS.Q1,ds,,50,5,10,individual_ack,10,1,1000M,0,10m,default,default,,0,10,maxRedeliverCount:2+deadLetterTopic:persistent://MYTENANT4/DLQ/TEST.JMS.Q1.DLQ+initialSubscriptionName:TEST.JMS.Q.DLQ1,minDelayMs:10+maxDelayMs:10+multiplier:2.0,
+# Another Consumer  Comment out to simulate "offline"
+# pstal03,C,false,Q,persistent://MYTENANT4/NS4/TEST.JMS.TOPIC.P3:TEST.JMS.Q2,ds,,50,5,10,individual_ack,10,1,1000M,0,10m,default,default,,0,10,maxRedeliverCount:2+deadLetterTopic:persistent://MYTENANT4/DLQ/TEST.JMS.Q2.DLQ+initialSubscriptionName:TEST.JMS.Q.DLQ2,minDelayMs:10+maxDelayMs:10+multiplier:2.0,
+# Another Consumer
+pstal04,C,false,Q,persistent://MYTENANT4/NS4/TEST.JMS.TOPIC.P3:TEST.JMS.Q3,ds,,50,5,10,individual_ack,10,1,1000M,0,10m,default,default,,0,10,maxRedeliverCount:2+deadLetterTopic:persistent://MYTENANT4/DLQ/TEST.JMS.Q3.DLQ+initialSubscriptionName:TEST.JMS.Q.DLQ3,minDelayMs:10+maxDelayMs:10+multiplier:2.0,
+# Another Consumer
+pstal04,C,false,Q,persistent://MYTENANT4/NS4/TEST.JMS.TOPIC.P3:TEST.JMS.Q4,ds,,50,5,10,individual_ack,10,1,1000M,0,10m,default,default,,0,10,maxRedeliverCount:2+deadLetterTopic:persistent://MYTENANT4/DLQ/TEST.JMS.Q4.DLQ+initialSubscriptionName:TEST.JMS.Q.DLQ4,minDelayMs:10+maxDelayMs:10+multiplier:2.0,
+# Last line must be blank or comment 

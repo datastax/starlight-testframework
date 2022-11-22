@@ -1,0 +1,33 @@
+---
+- name: Copy NB S4J test scenario definition yaml files to the remote host with the matching ID ('scn_id_str')
+  copy:
+    src: "{{ item }}"
+    dest: "{{ tgt_nbtf_scenario_dir }}/nb_yaml/{{ item.split('-')[1] }}"
+    owner: "{{ nbtf_user }}"
+    group: "{{ nbtf_user_group }}"
+    mode: "{{ file_permission_mode_noexec }}"
+  with_fileglob: 
+    - "testcases/_generated_nbscn_files_/*{{ scn_id_str|upper }}*.yaml"
+    - "testcases/_generated_nbscn_files_/IDALL*.yaml"
+
+- name: Copy NB S4J test scenario configuration files to the remote host with the matching ID ('scn_id_str')
+  copy:
+    src: "{{ item }}"
+    dest: "{{ tgt_nbtf_scenario_dir }}/nb_cfg/{{ item.split('-')[1] }}"
+    owner: "{{ nbtf_user }}"
+    group: "{{ nbtf_user_group }}"
+    mode: "{{ file_permission_mode_noexec }}"
+  with_fileglob: 
+    - "testcases/_generated_nbscn_files_/*{{ scn_id_str|upper }}*.properties"
+    - "testcases/_generated_nbscn_files_/IDALL*.properties"
+
+- name: Copy NB S4J test scenario CLI execution bash files to the remote host with the matching ID ('scn_id_str')
+  copy:
+    src: "{{ item }}"
+    dest: "{{ tgt_nbtf_scenario_dir }}/{{ item.split('-')[1] }}"
+    owner: "{{ nbtf_user }}"
+    group: "{{ nbtf_user_group }}"
+    mode: "{{ file_permission_mode }}"
+  with_fileglob: 
+    - "testcases/_generated_nbscn_files_/*{{ scn_id_str|upper }}*.sh"
+    - "testcases/_generated_nbscn_files_/IDALL*.sh"

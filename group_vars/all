@@ -1,0 +1,258 @@
+###
+# Copyright DataStax, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+###
+
+# General settings
+# -------------------------------------------
+#
+show_debug_msg: true
+sudo_needed: true
+
+# - whether to install Java and which version
+install_jdk: true
+openjdk_ver: 11
+
+# - System user and group to run NB based testing framework
+nbtf_user: nbtf
+nbtf_user_group: nbtf
+allow_group_write_mode: true
+file_permission_mode: "{% if allow_group_write_mode is defined and allow_group_write_mode|bool %}0775{% else %}0755{% endif %}"
+file_permission_mode_noexec: "{% if allow_group_write_mode is defined and allow_group_write_mode|bool %}0664{% else %}0644{% endif %}"
+
+# - Whehter or not to put the SSH user as part of the "nbtf" user group 
+ssh_user_in_nbtf_group: true
+
+# - Enable security to connect to Pulsar Cluster
+enable_security: false
+
+# 
+# NB binary related settings
+# -------------------------------------------
+# - NB version to download
+nb_version: 4.15.103
+
+# - "nb" doesn't require java to run
+# nb_exec_name: "nb"
+# - "nb.jar" needs to be excuted as "java -jar nb.jar ..."
+nb_exec_name: "nb.jar"
+
+# - whether to replace the remote nb executable file 
+#   even if it exists
+force_remote_file: "true"
+
+# only works when "nb.jar" is used
+# - heap size: 8G
+nb_jvm_setting: "-Xms2g -Xmx2g -XX:+AlwaysPreTouch"
+
+# - Whether or not to download NB binary from external internet URLs
+#   * true:  yes
+#   * false: copy software releases from local machine
+internet_download: true
+nb_bin_download_url_base: "https://github.com/nosqlbench/nosqlbench/releases/download"
+local_nb_bin_homedir: "~/DataStax/nb_bin"
+
+# - Local folder to host NBS4J execution logs
+local_nbtf_log_homedir: "nbs4j_exec_logs"
+
+
+#
+# Target fold structure for the NB testing framework
+# -------------------------------------------
+#
+tgt_nbtf_homedir: /opt/nbtf_pulsar_jms
+tgt_nbtf_bin_dir: "{{ tgt_nbtf_homedir }}/bin"
+tgt_nbtf_scenario_dir: "{{ tgt_nbtf_homedir }}/scenarios"
+tgt_nbtf_config_dir: "{{ tgt_nbtf_homedir }}/config"
+tgt_nbtf_pulsarconn_dir: "{{ tgt_nbtf_config_dir }}/pulsar_conn"
+
+# NB execution log directory (if enabled)
+tgt_nbtf_nblog_dir: "{{ tgt_nbtf_homedir }}/logs"
+
+# NB execution metrics (if enabled)
+tgt_nbtf_nbmetrics_dir: "{{ tgt_nbtf_homedir }}/metrics"
+
+# NB testign framework backup directory
+tgt_nbtf_bkup_homedir: "/opt/_BKUP_nbtf_pulsar_jms"
+
+# NB testign framework built-in monitoring
+tgt_nbtf_monitor_homedir: "{{ tgt_nbtf_homedir }}/monitoring"
+
+
+#
+# Parameters for connecting to Pulsar 
+# -------------------------------------------
+#
+# - pulsar web service url
+pulsar_web_url: http://10.166.89.221:8080,10.166.90.53:8080
+#pulsar_web_url: "http://localhost:8080"
+#pulsar_svc_url: "pulsar://localhost:6650"
+pulsar_svc_url: pulsar://10.166.89.221:6650,10.166.90.53:6650
+
+# - by default it is under "{{ tgt_nbtf_pulsarconn_dir }}" folder
+pulsar_clnt_jwt_token_name: "nbs4j.jwt"
+pulsar_clnt_jwt_token_file: "{{ tgt_nbtf_pulsarconn_dir }}/{{ pulsar_clnt_jwt_token_name }}"
+
+pulsar_clnt_trusted_cert_name: "nbs4j.cacert.pem"
+pulsar_clnt_trusted_cert_file: "{{ tgt_nbtf_pulsarconn_dir }}/{{ pulsar_clnt_trusted_cert_name }}"
+
+
+#
+# Message generation related
+# -------------------------------------------
+#
+# Message property
+# - NOTE: message property template is defined in templates/msg_prop.json
+
+# Default Message payload distribution
+# - 80% payload size is 4K; 10% is 6K; and 10% is 8K
+# - make sure the following format is used
+#   <size1_in_bytes>:<percentage1>,<size2_in_bytes>:<percentage2>,...
+# - make sure the percentage add-up is 100%
+msg_payload_distro_dft: "5120:80;6200:10;4000:10"
+
+
+#
+# Consumer DLQ policy related (global level settings in config.properties)
+# -------------------------------------------
+#
+# Slow ack simulation - Can be overridden in testcase "definition" file
+slow_ack_in_sec: "0"
+
+#
+#
+# Act timeout (consumer.ackTimeoutMillis) Can be overridden in testcase "definition" file
+ack_timeout_in_sec: "10"
+
+# Deadletter policy (consumer.deadLetterPolicy)
+# NOTE: value must be in the following format
+#       - maxRedeliverCount:<int_value>[+deadLetterTopic:<dlq_topic_name>[+initialSubscriptionName:<initial_sub_name>]]
+dlq_max_redelivery_cnt: "16"
+dlq_ns_prefix: "persistent://default/DLQ"
+dft_dlq_policy: "maxRedeliverCount:{{ dlq_max_redelivery_cnt }}"
+
+
+# AckTimeout Redelivery policy (consumer.ackTimeoutRedeliveryBackoff)
+# NOTE: value must be in the following format
+#       - minDelayMs:<int_value>+maxDelayMs:<int_value>+multiplier:<float_value>
+dft_ack_timeout_redelivery_backoff_policy: "minDelayMs:10+maxDelayMs:10+multiplier:2.0"
+
+# NegAck Redelivery policy (consumer.ackTimeoutRedeliveryBackoff)
+# NOTE: value must be in the following format
+#       - minDelayMs:<int_value>+maxDelayMs:<int_value>+multiplier:<float_value>
+# NOTE: if not set, use the same value as "ack_timeout_redelivery_backoff"
+dft_neg_ack_redelivery_backoff_policy: ""
+
+
+#
+# NB utility related
+# -------------------------------------------
+#
+
+# NB strides number
+nb_strides_num_deft: 1000
+
+# NB logging level
+# - possible values:
+#   * ""(empty value): warn (default)
+#   * "-v":   info
+#   * "-vv":  debug
+#   * "-vvv": trace
+nb_log_lvl: "-vv"
+
+# Whether to do strict error handling during message processing
+# - Yes: NB process will shut down for any error during message processing
+# - No:  NB process will continue 
+strict_msgerr_handling: "false"
+
+# Whether to track message count
+# - By default no tracking for better performance
+track_msg_cnt_dft: "false"
+
+
+#
+# Test case definition related
+# -------------------------------------------
+#
+# Default value of whehter producer batching is enabled
+prd_batching_dft: "false"
+
+# Default value of message compression type
+# - Valid values: Not Set, LZ4, ZLIB, ZSTD, SNAPPY
+msg_compression_dft: ""
+
+# Whether to use async S4J API during NB execution
+use_async_s4j_api: "false"
+
+# Whether to receive messages in a blocking way
+# - only applicable to synchronous API and message consumer
+use_blocking_msg_recv: "true"
+
+# Whether to use username/password simulation for client authentication
+# - when this true, "client.authParams" must be of format "token:<token_value_string_....>"
+# - otherwise, it can either be of format "file:///jwt/token/file/path" or "token:<token_value_string_...>"
+auth_user_password_simulation: "true"
+
+# Whether to use sticky partition feature for transaction handling
+use_trans_sticky_part: "true"
+
+##
+# JMS priority support
+enable_jms_priority: false
+# valid values: linear (default), non-linear
+jms_priority_mapping: 'non-linear'
+# consolidated JMS priority setting
+jms_priority_cfg: "{{ enable_jms_priority }}:{{ jms_priority_mapping }}"
+
+
+#
+# Test case execution related
+# -------------------------------------------
+#
+# Enable async. launch of test scenaro execution by Ansible
+async_testscn_exec_launch: true
+
+# Default Ansible pause time (in minutes) when launching the test scenarios asynchronously
+# - only needed when a test scenario is in "controlled execution" mode
+dft_async_testscn_pause_minutes: 5
+
+
+#
+# Template placeholders 
+# -------------------------------------------
+#
+# placeholders in "nb_cmd.tmpl"
+nbcmdTPH_nbExecPath: "<TMPL-NB_EXEC_PATH>"
+
+# placeholders in "prometheus.yaml"
+promYamlTPH_promHost: "<TMPL-NBTF_PROM_HOST>"
+promYamlTPH_pgeHost: "<TMPL-NBTF_PGE_HOST>"
+
+
+#
+# Monitoring related settings
+# -------------------------------------------
+#
+# - whether to set up monitoring servers (prometheus, grafana, etc.)
+enable_builtin_monitoring: false
+
+# - external graphite server address (only applicable when builtin_monitoring is not enabled)
+#   must be in format: <srv_ip>:<srv_port>
+external_graphite_srv_ulr: ""
+
+# - whether to install docker (latest version)
+install_docker: true
+docker_compose_version: 2.7.0
+url_docker_debian_pkg: https://download.docker.com/linux/ubuntu
+url_docker_compose_linux_download: "https://github.com/docker/compose/releases/download/v{{ docker_compose_version }}/docker-compose-linux-x86_64"

@@ -1,0 +1,10 @@
+{
+    "TEST_MSG_BUCKET(int)": "{nbb_msg_prop_test_bucket}",
+    "XAccessCode(string)": "A1",
+    "XMsgSource(string)": "SNG",
+    "XType(string)": "CD",
+    "XEventType(string)": "DS",
+    "XMsgVsn(string)": "SNG-1.0",
+    "XMsgUser(string)": "USER232",
+    "XReplayed(boolean)": "true"
+}

@@ -1,0 +1,42 @@
+#
+# Copy or download the NB binary file to the remote host
+# 
+# --------------------------------
+# - name: Check if the NB binary already exists on the target host
+#   stat:
+#     path: "{{ tgt_nbtf_bin_dir }}/{{ nb_exec_name }}"
+#   register: nb_exec_name_stat
+# - debug: msg="nb_exec_name_stat.stat.exists - {{ nb_exec_name_stat.stat.exists }}"
+#   when: show_debug_msg|bool
+- name: Copy JWT tokens and trusted cert files used to connect a Pulsar cluster with security enabled
+  copy:
+    src: "pulsar_conn/{{ item }}"
+    dest: "{{ tgt_nbtf_pulsarconn_dir }}/{{ item }}"
+    owner: "{{ nbtf_user }}"
+    group: "{{ nbtf_user_group }}"
+    mode: "{{ file_permission_mode_noexec }}"
+  with_items:
+    - nbs4j.jwt
+    - nbs4j.cacert.pem
+  when: enable_security|bool
+
+- name: If the NB binary to check doesn't exist yet, copy it from local host when 'internet_download' is false
+  copy:
+    src: "{{ local_nb_bin_homedir }}/{{ nb_exec_name }}"
+    dest: "{{ tgt_nbtf_bin_dir }}/{{ nb_exec_name }}"
+    owner: "{{ nbtf_user }}"
+    group: "{{ nbtf_user_group }}"
+    mode: "{% if nb_exec_name is search('jar') %}{{ file_permission_mode_noexec }}{% else %}{{ file_permission_mode }}{% endif %}"
+  when: not internet_download|bool
+  # when: (force_remote_file|bool or not nb_exec_name_stat.stat.exists|bool) and not internet_download|bool
+
+
+- name:  If the NB binary to check doesn't exist yet, download it from the internet when 'internet_download' is true
+  get_url:
+    url: "{{ nb_bin_download_url_base }}/nosqlbench-{{ nb_version }}/{{ nb_exec_name }}"
+    dest: "{{ tgt_nbtf_bin_dir }}/{{ nb_exec_name }}"
+    owner: "{{ nbtf_user }}"
+    group: "{{ nbtf_user_group }}"
+    mode: "{% if nb_exec_name is search('jar') %}{{ file_permission_mode_noexec }}{% else %}{{ file_permission_mode }}{% endif %}"
+  when: internet_download|bool
+  # when: (force_remote_file|bool or not nb_exec_name_stat.stat.exists|bool) and internet_download|bool

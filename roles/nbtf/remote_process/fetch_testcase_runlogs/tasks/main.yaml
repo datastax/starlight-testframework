@@ -1,0 +1,28 @@
+#
+# Fetch logs for all test scenarios within a test case
+#
+---
+- name: Copy the bash script to the remote host for finding out most recent log files
+  copy:
+    src: "bash/find_latest_files.sh"
+    dest: "{{ tgt_nbtf_bin_dir }}/"
+    owner: "{{ nbtf_user }}"
+    group: "{{ nbtf_user_group }}"
+    mode: "{{ file_permission_mode }}"
+
+- name: Excecute the script to find out the most recent log files for all test scenarios of all test cases on the remote host
+  shell: |
+    {% if sudo_needed|bool %}sudo -u {{ nbtf_user }} -E bash {% endif %}{{ tgt_nbtf_bin_dir }}/find_latest_files.sh \
+    -tgtDirToScan {{ tgt_nbtf_nblog_dir }} -fileExtType log \
+    -tgtTestCase '{{ testcase_name }} '  -timeThresh '{{ time_threshold }} '
+  register: latest_nblog_cmdset
+- debug: "msg={{latest_nblog_cmdset.stdout_lines}}"
+  when: show_debug_msg|bool
+
+- name: Fetch the bash script to the remote host for finding out most recent log files
+  fetch:
+    src: "{{ item }}"
+    dest: "{{ local_log_dir }}/{{ item.split('/')[4] }}/{{ private_ip }}-{{ item.split('/')[5] }}"
+  # debug: "msg={{ item.split('/')[4] }}/{{ item.split('/')[5] }}"
+  with_items:
+    - "{{ latest_nblog_cmdset.stdout_lines }}"

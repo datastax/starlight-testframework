@@ -1,0 +1,18 @@
+{
+    "TEST_MSG_BUCKET(int)": "{nbb_msg_prop_test_bukcket}",
+    "XAccessCode(string)": "A1",
+    "XMsgSource(string)": "SNG",
+    "XPickupType(string)": "CD",
+    "XJMS_TIBCO_PRESERVE_UNDELIVERED(boolean)": "true",
+    "XMessageCreateTime(string)": "2011-02-28T07:31:28.218-06:00",
+    "XTrackingIdentifier(string)": "794471831177",
+    "XTrackingIdentifierQualifier(string)": "2455621000",
+    "XXSDVer(string)": "FTM_21.16.25",
+    "XCarrierCode(string)": "FX",
+    "XEventType(string)": "OC",
+    "XMsgVsn(string)": "SNG-1.0",
+    "XMsgUser(string)": "SNG-SEP",
+    "XReplayed(boolean)": "true",
+    "XJMS_TIBCO_COMPRESS(boolean)": "true",
+    "XMsgCharCd(string)": "XML"
+}

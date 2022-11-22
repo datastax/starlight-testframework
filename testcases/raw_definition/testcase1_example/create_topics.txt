@@ -1,0 +1,3 @@
+admin tenants create MYTENANT
+admin namespaces create MYTENANT/NS1
+admin topics create-partitioned-topic persistent://MYTENANT/NS1/PERF.TEST.TOPIC.P2 -p 2

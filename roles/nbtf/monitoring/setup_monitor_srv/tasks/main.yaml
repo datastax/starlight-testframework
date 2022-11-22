@@ -1,0 +1,40 @@
+---
+- name: Copy docker-compose file to the remote hosts
+  copy:
+    src: "{{ item }}"
+    dest: "{{ tgt_nbtf_monitor_homedir }}/{{ item.split('.tmpl')[0].split('/')[2] }}"
+    owner: "{{ nbtf_user }}"
+    group: "{{ nbtf_user_group }}"
+    mode: "{{ file_permission_mode_noexec }}"
+  with_items: 
+    - "templates/monitoring/docker-compose.yaml.tmpl"
+
+- name: Copy Grafana server related configuration files to the remote hosts
+  copy:
+    src: "{{ item }}"
+    dest: "{{ tgt_nbtf_monitor_homedir }}/grafana/{{ item.split('.tmpl')[0].split('/')[3] }}"
+    owner: "{{ nbtf_user }}"
+    group: "{{ nbtf_user_group }}"
+    mode: "{{ file_permission_mode_noexec }}"
+  with_items: 
+    - "templates/monitoring/grafana/prometheus-datasource.yaml.tmpl"
+    - "templates/monitoring/grafana/dashboards.yaml.tmpl"
+
+- name: Copy Prometheus server related configuration files to the remote hosts
+  copy:
+    src: "{{ item }}"
+    dest: "{{ tgt_nbtf_monitor_homedir }}/prometheus/{{ item.split('.tmpl')[0].split('/')[3] }}"
+    owner: "{{ nbtf_user }}"
+    group: "{{ nbtf_user_group }}"
+    mode: "{{ file_permission_mode_noexec }}"
+  with_items: 
+    - "templates/monitoring/prometheus/prometheus.yaml.tmpl"
+
+- name: Replace template place holders in prometheus yaml file
+  replace:
+      path: "{{ tgt_nbtf_monitor_homedir }}/prometheus/prometheus.yaml"
+      regexp: "{{ item.regexp }}"
+      replace: "{{ item.line }}"
+  with_items:
+    - { regexp: "{{ promYamlTPH_promHost }}", line: "{{ inventory_hostname }}" }
+    - { regexp: "{{ promYamlTPH_pgeHost }}", line: "{{ inventory_hostname }}" }

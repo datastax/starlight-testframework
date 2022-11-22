@@ -1,0 +1,25 @@
+---
+- name: Delete all files under the remote test case directory
+  shell: "cd {{ tgt_nbtf_scenario_dir }}; {% if sudo_needed|bool %}sudo -u {{ nbtf_user }} {% endif %}rm -rf */*"
+  register: rmRemoteTcCmd
+- debug: msg="rmRemoteTcCmd.failed - {{ rmRemoteTcCmd.failed }}"
+  when: show_debug_msg|bool
+
+######################################################
+# NOTE: This code is not efficient.
+#       Use the bash script based approach instead (as above)
+#
+#       BUT DO NOT delete this code !!!
+#-----------------------------------------------------
+# - name: Find out all NB S4J test scenario related files
+#   find:
+#     path: "{{ tgt_nbtf_scenario_dir }}"
+#     file_type: file
+#     recurse: yes
+#   register: nb_s4j_files
+#
+# - name: Clean up the old NB scenario definition files files
+#   file:
+#     path: "{{ item.path }}"
+#     state: absent
+#   with_items: "{{ nb_s4j_files.files }}"

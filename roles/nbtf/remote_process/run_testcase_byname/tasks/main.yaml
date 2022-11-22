@@ -1,0 +1,26 @@
+#
+# Run all test scenarios defined within a test case
+#
+---
+- name: Find out all test scenarios under the specified test case {{ testcase_name }}
+  find: 
+    paths: "{{ tgt_nbtf_scenario_dir }}"
+    patterns: "run_{{ testcase_name }}*.sh"
+  register: test_scn_names
+
+- name: If set so, synchronously launch the execution of the test scenario under the specified test case
+  shell: "{% if sudo_needed|bool %}sudo -u {{ nbtf_user }} bash{% endif %} {{ item.path }}"
+  with_items: 
+    - "{{ test_scn_names.files }}"
+  when: not async_testscn_exec_launch|bool
+
+- name: If set so, asynchronously launch the execution of the test scenario under the specified test case
+  shell: "nohup {% if sudo_needed|bool %}sudo -u {{ nbtf_user }} bash{% endif %} {{ item.path }} 2>&1 &"
+  # Async shell execution with a very large number
+  async: 31536000 # 1 year
+  # 0 polling value is non-blocking. Ansible moves to the next task right away
+  # postive polling value is blocking. Ansible waits until the current task completes
+  poll: 0
+  with_items: 
+    - "{{ test_scn_names.files }}"
+  when: async_testscn_exec_launch|bool

@@ -1,0 +1,39 @@
+###
+# Copyright DataStax, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+###
+
+- hosts: localhost
+  connection: local
+  tasks:
+    - name: Set the current epoch time as a variable
+      set_fact: curTime={{ ansible_date_time.iso8601_basic_short }}
+    - name: Create the local home folder for NB execution logs to be fetched from remote hosts
+      file:
+        path: "{{ local_nbtf_log_homedir }}/ad-hoc-fetch-all/{{ curTime }}"
+        state: directory
+        recurse: yes
+
+- hosts: pulsarClient
+  gather_facts: true
+  any_errors_fatal: true
+  become: "{{ sudo_needed }}"
+  vars: 
+    local_log_dir: "{{ local_nbtf_log_homedir }}/ad-hoc-fetch-all/{{ hostvars['localhost']['curTime'] }}"
+    testcase_name: "*"
+    time_threshold: "*"
+  tasks:
+    - name: Fetch remote logs for all test cases in sequence and save into the specified local log directory
+      include_role: 
+        name: nbtf/remote_process/fetch_testcase_runlogs

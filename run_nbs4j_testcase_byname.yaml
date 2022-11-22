@@ -1,0 +1,36 @@
+###
+# Copyright DataStax, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+###
+
+- hosts: pulsarClient
+  gather_facts: true
+  any_errors_fatal: true
+  become: "{{ sudo_needed }}"
+  tasks:
+    - name: Stop execution if the test case name is not specified
+      assert: 
+        that: false
+        fail_msg: "Test case must be provided!"
+      when: testcase_name is not defined or testcase_name == ""
+    - name: Create .nosqlbench folder on the remote host
+      file:
+        path: "/home/{{ ansible_ssh_user }}/.nosqlbench"
+        state: directory
+        owner: "{{ nbtf_user }}"
+        group: "{{ nbtf_user_group }}"
+        mode: "{{ file_permission_mode }}"
+    - name: Execute all test scnearios under the specified test case
+      include_role: 
+        name: nbtf/remote_process/run_testcase_byname

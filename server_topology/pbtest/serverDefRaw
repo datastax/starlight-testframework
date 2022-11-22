@@ -1,0 +1,21 @@
+# Server list raw definition file
+# -----------------------------------
+# > each line represents a server host in this server topology 
+# > each server host line has the following fields
+#    0) internal facing server ip or hostname
+#    1) external facing server ip or hostname
+#       * if empty, the same as the internal facing ip or hostname
+#    2) server type: what purpose of this host machine in the Pulsar cluster
+#       in theory, one host machine can be used for multiple purposes (esp for lower environment)
+#       * possible values: "standAloneClient" for now.
+#    3) region name
+#    4) availability zone name
+#    5) [broker only] contact point (yes/no): whether to be used as the contact point for a Pulsar client
+#    6) host machine deployment status. Possible values: 
+#       - (empty value/not set): node either already in the cluster or to be added 
+#       - 'remove': remove node from the cluster
+# -----------------------------------
+10.166.92.109,,standAloneClient,pstal01
+10.166.94.105,,standAloneClient,pstal02
+10.166.94.187,,standAloneClient,pstal03
+10.166.95.19,,standAloneClient,pstal04
