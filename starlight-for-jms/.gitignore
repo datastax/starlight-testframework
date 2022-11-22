@@ -1,0 +1,8 @@
+# ignore ALL .log files
+*.log
+_generated_*
+# ignore test hosts file
+hosts_*
+hosts.ini
+# ignore ALL files in ANY directory named temp
+temp/
