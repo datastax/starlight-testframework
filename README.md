@@ -5,5 +5,7 @@ This repo contains a framework and tools that can be used to fully **automated**
 This test framework is based on the [NoSQLBench (NB)](https://github.com/nosqlbench/nosqlbench) utility, with specific drivers for each Starlight client, like [Starlight for JMS (S4J) driver](https://github.com/nosqlbench/nosqlbench/tree/nb4-maintenance).
 
 # Starlight Client Tests
-See **[Starlight-for-Jms](starlight-for-jms/)** for info on JMS workload testing.
+See **[Starlight-for-Jms](starlight-for-jms/)** for info on JMS workload testing.  Ready to use [testcases](starlight-for-jms/testcases/raw_definition/) to simulate JMS workloads on Pulsar.  See [README](starlight-for-jms/README.md) for details.
+
+Coming soon, additional Starlight Client test frameworks, [Starlight-for-RabbitMQ](starlight-for-rabbitmq/) and [Starlight-for-Kafka](starlight-for-kafka/).
 
