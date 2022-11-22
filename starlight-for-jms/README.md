@@ -22,6 +22,7 @@
 - [8. Test Case logfiles - Retrieve remote logfiles from testing hosts](#8-test-case-logfiles---retrieve-remote-logfiles-from-testing-hosts)
 - [9. Example Testcases](#9-example-testcases)
   - [9.1 Simple JMS Producer and Consumer - testcase\_example1](#91-simple-jms-producer-and-consumer---testcase_example1)
+  - [10 Metrics and Monitoring of Test Clients](#10-metrics-and-monitoring-of-test-clients)
 
 ---
 
@@ -476,3 +477,5 @@ The consumer is created with this line:
 pstal02,C,false,T,persistent://MYTENANT/NS1/PERF.TEST.TOPIC.P2,nds,mySub,50,10,5,individual_ack,10,1,1000M,1,3m,,,,0,10,,,minDelayMs:10+maxDelayMs:10+multiplier:2.0,
 ```
 This consumer will run on hostid "pstal02".  See the [testcase raw definition file section here](#3-test-case-raw-definition-and-execution-schedule) for explanation of the parameters.  Note the comma "," for empty values in the string.
+## 10 Metrics and Monitoring of Test Clients
+(Placeholder for metrics and monitoring options for S4J clients.)
