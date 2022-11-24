@@ -21,7 +21,6 @@
 - [7. Stop and Cleanup of Test Execution](#7-stop-and-cleanup-of-test-execution)
 - [8. Test Case logfiles - Retrieve remote logfiles from testing hosts](#8-test-case-logfiles---retrieve-remote-logfiles-from-testing-hosts)
 - [9. Example Testcases](#9-example-testcases)
-  - [9.1 Simple JMS Producer and Consumer - testcase\_example1](#91-simple-jms-producer-and-consumer---testcase_example1)
 - [10. Metrics and Monitoring of Test Clients](#10-metrics-and-monitoring-of-test-clients)
 
 ---
@@ -52,7 +51,7 @@ Serveral localhost environments variables are needed for BASH and Ansible script
 ANSI_SSH_PRIV_KEY="<ssh_private_key_file_path>"
 ANSI_SSH_USER="<ssh_user_name>"
 ANSI_DEBUG_LVL="[ |-v|-vv|-vvv]"
-SERVER_TOPOLOGY_NAME="<server_topology_foldername>"
+TEST_HOSTNAMES_DIR="<test_hostname_example>"
 ```
 
 # 2. Highlevel Steps and Requirements
@@ -255,23 +254,23 @@ Setup of the Testing Framework requires 2 steps to be executed as defined below.
 This repo has a script to build the basic Server Inventory file needed for other scripts.  This inventory file is defined in the following folder on the localhost.
 
 ```
-server_topology
-├── <server_top_1_name>
-│   └── serverDefRaw
-└── <server_top_2_name>
-   └── serverDefRaw
+test_hostnames
+├── <test_hostname_example>
+│   └── hostnamesDefRaw
+└── <test_hostname_example_2>
+   └── hostnamesDefRaw
 ```
-Multiple "server inventory list" can be defined and created using this folder.  See the **serverDefRaw** file for details on the contents of this file.
+Multiple "test hostname inventory lists" can be defined and created using this folder.  See the **hostnamesDefRaw** file for details on the contents of this file.
 
 ### 4.1.1 bash/buildAnsiHostInvFile.sh Inputs and Outputs
-After the **serverDefRaw** file is defined, run **bash/buildAnsiHostInvFile.sh** to generate the required files for environment setup.
+After the **hostnamesDefRaw** file is defined, run **bash/buildAnsiHostInvFile.sh** to generate the required files for environment setup.
 
 ```
-$ bash/buildAnsiHostInvFile.sh -serverTopName <server_topology_folder> -hostDns [true|false]
+$ bash/buildAnsiHostInvFile.sh -testHostNamesDir <test_hostname_example> -hostDns [true|false]
 ```
 The output from this script will be a file:
 ```
-hosts_<serverTopName>.ini
+hosts_<test_hostname_example>.ini
 ```
 
 ## 4.2 Step - **00.setup_environment.sh**
@@ -453,6 +452,8 @@ Example to retrieve logfiles for "testcase1"
 # 9. Example Testcases
 Serveral testcase examples are provided to show howto use the framework to create workload and various conditions.  See the README under each testcase folder for details and explanation of the testcase, including how to verify results.
 
+[Test Case 1 Simple Example](testcases/raw_definition/testcase1_example/README.md)
+
 [Test Case 2 DQL](testcases/raw_definition/testcase2_dlq/README.md)
 
 [Test Case 3 JMS Filtering](testcases/raw_definition/testcase3_jmsfilter/README.md)
@@ -460,22 +461,5 @@ Serveral testcase examples are provided to show howto use the framework to creat
 [Test Case 4 JMS Offline Consumer with Backlog and Catchup](testcases/raw_definition/tc_exec_schedule.backlog-catchup-simulation) 
 This test case demos using the tc_exec_schedule file and scripts to run a sequence of testcases to simulate offline, then online Clients.
 
-The first test case example is detailed below.  All others are under the specific testcase folders.
-
-## 9.1 Simple JMS Producer and Consumer - testcase_example1
-This testcase is very simple, showing how to create JMS topic producer and a JMS topic consumer, with multiple connections and sessions
-
-**Producer definition** 
-In the definition file, we see the producer is created with this line:
-```
-pstal01,P,false,T,persistent://MYTENANT/NS1/PERF.TEST.TOPIC.P2,,,50,10,5,,10,1,1000M,1,2m,default,default,,,,,,
-```
-This producer will run on hostid "pstal01" as defined in the [server_topology](#41-step---bashbuildansihostinvfilesh) file.  See the [testcase raw definition file section here](#3-test-case-raw-definition-and-execution-schedule) for explanation of the parameters.  Note the comma "," for empty values in the string.
-
-The consumer is created with this line:
-```
-pstal02,C,false,T,persistent://MYTENANT/NS1/PERF.TEST.TOPIC.P2,nds,mySub,50,10,5,individual_ack,10,1,1000M,1,3m,,,,0,10,,,minDelayMs:10+maxDelayMs:10+multiplier:2.0,
-```
-This consumer will run on hostid "pstal02".  See the [testcase raw definition file section here](#3-test-case-raw-definition-and-execution-schedule) for explanation of the parameters.  Note the comma "," for empty values in the string.
 # 10. Metrics and Monitoring of Test Clients
 (Placeholder for metrics and monitoring options for S4J clients.)
