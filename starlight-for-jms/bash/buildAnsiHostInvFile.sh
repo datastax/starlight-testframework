@@ -53,20 +53,22 @@ debugMsg() {
     fi
 }
 
-clstrToplogyRawDefHomeDir="./server_topology"
+clstrToplogyRawDefHomeDir="./test_hostnames"
 validPulsarClntHostTypeArr=(${validPulsarSrvHostTypeArr[@]} "standAloneClient")
 validPulsarClntHostTypeListStr="${validPulsarClntHostTypeArr[@]}"
 debugMsg "validPulsarClntHostTypeListStr=${validPulsarClntHostTypeListStr}"
 
-validHostTypeArr+=${validPulsarClntHostTypeArr}
+validHostTypeArr+=( ${validPulsarClntHostTypeArr[@]} "monitoring")
+validHostTypeListStr="${validHostTypeArr[@]}"
+debugMsg "validHostTypeListStr=${validHostTypeListStr}"
 
 usage() {
    echo
    echo "Usage: buildAnsiHostInvFile.sh [-h]"
-   echo "                                -serverTopName <server_topology_name>"
+   echo "                                -testHostNamesDir <test_hostnames>"
    echo "                                -hostDns <whehter_using_dnsname>"
    echo "       -h : Show usage info"
-   echo "       -serverTopName : Server Topology folder name"
+   echo "       -testHostNamesDir : Test Hostnames folder/directory name"
    echo "       -hostDns   : Whehter using host DNS name (true) or host IP (faslse)"
    echo
 }
@@ -79,15 +81,15 @@ fi
 while [[ "$#" -gt 0 ]]; do
    case $1 in
       -h) usage; exit 0 ;;
-      -serverTopName) serverTopName=$2; shift ;;
+      -testHostNamesDir) testHostNamesDir=$2; shift ;;
       -hostDns) hostDns=$2; shift ;;
       *) echo "[ERROR] Unknown parameter passed: $1"; exit 20 ;;
    esac
    shift
 done
 
-clstTopFile="${clstrToplogyRawDefHomeDir}/${serverTopName}/serverDefRaw"
-lastClstTopFile="${clstrToplogyRawDefHomeDir}/${serverTopName}/serverDefRaw_last"
+clstTopFile="${clstrToplogyRawDefHomeDir}/${testHostNamesDir}/hostnamesDefRaw"
+lastClstTopFile="${clstrToplogyRawDefHomeDir}/${testHostNamesDir}/hostnamesDefRaw_last"
 
 debugMsg "clstTopFile=${clstTopFile}"
 debugMsg "lastClstTopFile=${lastClstTopFile}"
@@ -95,7 +97,7 @@ debugMsg "hostDns=${hostDns}"
 
 # Check if the corrsponding Pulsar cluster definition file exists
 if ! [[ -f "${clstTopFile}" ]]; then
-    echo "[ERROR] The spefified Pulsar cluster doesn't have the corresponding topology definition file: ${clstTopFile}";
+    echo "[ERROR] The spefified test hostnames directory doesn't have the corresponding definition file: ${clstTopFile}";
     exit 30
 fi
 
@@ -105,7 +107,7 @@ if ! [[ ${hostDns} =~ $re ]]; then
   exit 40
 fi
 
-tgtAnsiHostInvFileName="hosts_${serverTopName}.ini"
+tgtAnsiHostInvFileName="hosts_${testHostNamesDir}.ini"
 echo > ${tgtAnsiHostInvFileName}
 
 # Map of server type to an array of internal IPs/HostNames
@@ -172,7 +174,7 @@ outputMsg() {
 }
 
 outputMsg "[all:vars]"
-outputMsg "server_topology_name=${serverTopName}"
+outputMsg "test_hostnames=${testHostNamesDir}"
 outputMsg "use_dns_name=\"${hostDns}\""
 outputMsg ""
 outputMsg "[pulsarClient:children]"

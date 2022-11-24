@@ -74,15 +74,15 @@ while [[ "$#" -gt 0 ]]; do
 done
 
 # Check if the required environment variables are set
-if [[ -z "${ANSI_SSH_PRIV_KEY// }" || -z "${ANSI_SSH_USER// }" || -z "${ANSI_DEBUG_LVL// }" || -z "${SERVER_TOPOLOGY_NAME// }" ]]; then
+if [[ -z "${ANSI_SSH_PRIV_KEY// }" || -z "${ANSI_SSH_USER// }" || -z "${ANSI_DEBUG_LVL// }" || -z "${TEST_HOSTNAMES_DIR// }" ]]; then
     echo "Required environment variables are not set in 'setenv_automation.sh' file!"
     exit 10
 fi
 
 # Check if the required host inventory file exists
-ANSI_HOSTINV_FILE="$(pwd)/hosts_${SERVER_TOPOLOGY_NAME}.ini"
+ANSI_HOSTINV_FILE="$(pwd)/hosts_${TEST_HOSTNAMES_DIR}.ini"
 if ! [[ -f "${ANSI_HOSTINV_FILE}" ]]; then
-    echo "The corresponding host inventory file for server topology name \"${SERVER_TOPOLOGY_NAME}\". Please run 'bash/buildAnsiHostInvFile.sh' file to generate it!"
+    echo "The corresponding host inventory file for server topology name \"${TEST_HOSTNAMES_DIR}\". Please run 'bash/buildAnsiHostInvFile.sh' file to generate it!"
     exit 20
 fi
 # 2022-08-19 11:40:23

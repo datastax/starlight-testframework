@@ -15,7 +15,7 @@
 # limitations under the License.
 ###
 
-ANSI_SSH_PRIV_KEY="/home/pat/aws/pbym"
-ANSI_SSH_USER="automaton"
+ANSI_SSH_PRIV_KEY="/home/my/.ssh/sshkey"
+ANSI_SSH_USER="myuserid"
 ANSI_DEBUG_LVL="-v"
-SERVER_TOPOLOGY_NAME="pbtest"
+TEST_HOSTNAMES_DIR="test_hostname_example"
