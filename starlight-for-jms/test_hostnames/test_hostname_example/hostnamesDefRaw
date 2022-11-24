@@ -13,14 +13,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
-# Server list raw definition file
+# Test hostname list raw definition file
 # -----------------------------------
 # > each line represents a server host in this server topology 
 # > each server host line has the following fields
 #    0) internal facing server ip or hostname
 #    1) external facing server ip or hostname
 #       * if empty, the same as the internal facing ip or hostname
-#    2) "standAloneClient" is the only value used now
+#    2) "standAloneClient" or "monitoring" if enable_builtin_monitoring=true in the group_vars/all file
 #    3) Host ID as assigned in Testcases "definition" file
 # -----------------------------------
 <client_node_ip_1>,,standAloneClient,hostid1
