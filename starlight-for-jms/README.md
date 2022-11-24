@@ -75,6 +75,9 @@ This framework can use Pulsar Admin in the testcases, potentially in the Pre and
 
 Pulsar is not required to **run** on the localhost where the Ansible and Bash script execute, only the installation of the Pulsar software is required if Pulsar Admin is be used.
 
+The testcase examples use **Pulsar Shell** which can be much faster to run a seqence of commands, like add 100s of Topics.  For details on it and installation, see https://github.com/datastax/pulsar/releases and https://pulsar.apache.org/docs/next/administration-pulsar-shell/
+
+
 ## 2.3 Group_vars "all" file
 The file **group_vars/all** contains dafaults and definitions used by this framework.  See the file for specific details.
 ```
