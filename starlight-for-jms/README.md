@@ -465,4 +465,18 @@ Serveral testcase examples are provided to show howto use the framework to creat
 This test case demos using the tc_exec_schedule file and scripts to run a sequence of testcases to simulate offline, then online Clients.
 
 # 10. Metrics and Monitoring of Test Clients
-(Placeholder for metrics and monitoring options for S4J clients.)
+This test framework includes an option to capture limited metrics from running Starlight for JMS clients during testing.  This option installs Prometheus, Graphite-exporter and Grafana via Docker Compose images, and configuration of clients to forward metrics.  The metrics are based on [NoSQL Bench S4J client](https://github.com/nosqlbench/nosqlbench/tree/nb4-maintenance/driver-s4j) as documented [here](https://docs.nosqlbench.io/docs/getting_started/03-reading-metrics/).
+
+**Setup Metrics** 
+In the group_vars/all file, enable monitoring as shown below:
+```
+enable_builtin_monitoring: true
+```
+
+Next, add a test hostname and label it "monitoring" in the [test_hostnames](test_hostnames/test_hostname_example/hostnamesDefRaw) definition file
+```
+mymonitor,,monitoring,hostmonitor
+```
+Then run script **00.setup_environment.sh** to setup the test hosts, including the components for capturing metrics.
+
+**Note:**  Metrics capture and current configuration is limited to clients running on the "monitoring" node.  Manual updates are required to capture metrics on multiple test hosts.  This option is included to show/demo **how** it can be accomplished.  It is not meant to replace Pulsar Cluster metrics and reporting options.

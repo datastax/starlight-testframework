@@ -16,7 +16,11 @@ msg ack ratio "0", slow acks "3", DLQ queue and redelivery setup
 ```
 ## 2.1 Running the Test Case
 
-(TODO add steps)
+Follow the steps to setup the [Test Framework env](../../../README.md) as stated.  Then run these commands:
+```
+./01.deploy_nbs4j_tf.sh testcase2_dlq true false
+./03.run_testcase_by_name.sh -testCaseName testcase2_dlq
+```
 
 # 3. Test Case Results
 After the test case completes execution, retrieve all testcase related logs to your localhost.  In logfile, nbtf_pulsar_jms/logs/**testcase2_dlq_scn1**/scenario_<"date">_<"time">_<"num">.log, you see the results of the consumer execution.  In this log, search for **"unack"** to verify messages were unacknowledged.  You should see results like below:
