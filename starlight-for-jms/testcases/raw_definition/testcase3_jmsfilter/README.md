@@ -20,7 +20,11 @@ msg ack ratio "1", slow acks "0", Ack timeout "10", DLQ queue and redelivery set
 ```
 ## 2.1 Running the Test Case
 
-(TODO add steps)
+Follow the steps to setup the [Test Framework env](../../../README.md) as stated.  Then run these commands:
+```
+./01.deploy_nbs4j_tf.sh testcase3_jmsfilter true false
+./03.run_testcase_by_name.sh -testCaseName testcase3_jmsfilter
+```
 
 # 3. Test Case Results
 After the test case completes execution, retrieve all testcase related logs to your localhost.  In logfile, nbtf_pulsar_jms/logs/**testcase3_jmsfilter_scn1**/scenario_<"date">_<"time">_<"num">.log, you see the results of the consumer execution.  In this log, search for **"jms.selector"** to verify the JMS selector is setup.  You should see results like below:
