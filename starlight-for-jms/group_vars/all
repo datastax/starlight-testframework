@@ -41,12 +41,12 @@ enable_security: false
 # NB binary related settings
 # -------------------------------------------
 # - NB version to download
-nb_version: 4.15.103
+nb_version: 4.17.31
 
 # - "nb" doesn't require java to run
 # nb_exec_name: "nb"
 # - "nb.jar" needs to be excuted as "java -jar nb.jar ..."
-nb_exec_name: "nb.jar"
+nb_exec_name: "nb5.jar"
 
 # - whether to replace the remote nb executable file 
 #   even if it exists
