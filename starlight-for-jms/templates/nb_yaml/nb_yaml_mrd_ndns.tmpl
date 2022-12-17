@@ -16,14 +16,14 @@ blocks:
   # message receiver/consumer/subscriber from a topic or a queue
   # - subscription: non-durable, non-shared
   #------------------
-  - name: "msg-read-block"
+  msg-consumer-block:
     tags:
+      name: "msg-read-block"
       phase: "mr"
-    statements:
-      - name: "s1"
-        optype: "msg_read"
+    ops:
+      ops1:
+        MessageConsume: "<TMPL-DEST_NAME>"  
         dest_type: "<TMPL-DEST_TYPE>"
-        dest_name: "<TMPL-DEST_NAME>"
 
         ## (Optional) Receive message without wait
         no_wait: "false"

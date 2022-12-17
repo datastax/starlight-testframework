@@ -16,14 +16,14 @@ blocks:
   # message receiver/consumer/subscriber from a topic or a queue
   # - subscription type: non-durable, shared 
   #------------------
-  - name: "msg-read-block"
+  msg-consumer-block:
     tags:
+      name: "msg-read-block"
       phase: "mrs"
-    statements:
-      - name: "s1"
-        optype: "msg_read_shared"
+    ops:
+      ops1:
+        MessageConsume: "<TMPL-DEST_NAME>"  
         dest_type: "<TMPL-DEST_TYPE>"
-        dest_name: "<TMPL-DEST_NAME>"
 
         ## Subscription name
         subscription_name: "<TMPL-SUB_NAME>"
