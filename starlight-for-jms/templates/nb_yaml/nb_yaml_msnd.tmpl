@@ -24,14 +24,14 @@ blocks:
   ###################
   # message sender/producer/publisher to a topic
   #------------------
-  - name: "msg-send-block"
+  msg-producer-block:    
     tags:
+      name: "msg-send-block"
       phase: "mst"
-    statements:
-      - name: "s1"
-        optype: "msg_send"
+        ops:
+      op1:
+        MessageProduce: "<TMPL-DEST_NAME>"
         dest_type: "<TMPL-DEST_TYPE>"
-        dest_name: "<TMPL-DEST_NAME>"
 
         ## (Optional) JMS properties, predefined or customized (in JSON format).
         #  NOTE: must use single quote (') since the value is a JSON string
