@@ -1,0 +1,44 @@
+enableTransaction=true
+
+####
+# S4J API specific configurations (non Pulsar specific) - jms.***
+#--------------------------------------
+jms.enableClientSideEmulation=false
+jms.usePulsarAdmin=false
+jms.precreateQueueSubscription=false
+jms.useServerSideFiltering=true
+jms.emulateTransactions=false
+jms.transactionsStickyPartitions=<TMPL-USE_TRANSCT_STICKY_PARTITION>
+jms.useCredentialsFromCreateConnection=<TMPL-USER_PASSWORD_SIMULATION>
+jms.enableJMSPriority=<TMPL-ENABLE_JMS_PRIORITY>
+jms.priorityMapping=<TMPL-PRIORITY_MAPPING>
+jms.queueSubscriptionName=<TMPL-SUB_NAME>
+#jms.clientId=myjmsclientid
+#...
+
+#####
+# Pulsar client related configurations - client.*** 
+#--------------------------------------
+client.authPlugin=org.apache.pulsar.client.impl.auth.AuthenticationToken
+client.authParams=<TMPL-AUTH_TOKEN>
+client.tlsTrustCertsFilePath=<TMPL-TLS_TRUST_CERT_FILE>
+#...
+
+#####
+# Producer related configurations (global) - producer.***
+#--------------------------------------
+producer.blockIfQueueFull=true
+producer.batchingEnabled=<TMPL-BATCHING_ENABLED>
+producer.compressionType=<TMPL-COMPRESSION_TYPE>
+#...
+
+#####
+# Consumer related configurations (global) - consumer.***
+#--------------------------------------
+consumer.receiverQueueSize=64
+consumer.acknowledgementsGroupTimeMicros=0
+consumer.ackTimeoutMillis=<TMPL-CFG_ACK_TIMEOUT>
+consumer.deadLetterPolicy=<TMPL-CFG_DLQ_POLICY>
+consumer.ackTimeoutRedeliveryBackoff=<TMPL-CFG_ACK_TIMEOUT_REDELIVERY_POLICY>
+consumer.negativeAckRedeliveryBackoff=<TMPL-CFG_NEG_ACK_REDELIVERY_POLICY>
+#...
