@@ -1,6 +1,6 @@
 **NOTE**: 
 
-This test framework is based on the lastest [NoSQLBench utility version 5 (NB5, or simply NB)](https://github.com/nosqlbench/nosqlbench). Older versions of NB won't work with this test framework.
+This test framework is based on the lastest [NoSQLBench utility version 5 (NB5, or simply NB)](https://github.com/nosqlbench/nosqlbench). Older versions of NB will not work with this test framework.
 
 ---
 

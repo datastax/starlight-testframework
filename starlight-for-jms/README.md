@@ -462,7 +462,7 @@ Several testcase examples are provided to show howto use the framework to create
 [Test Case 3 JMS Filtering](testcases/raw_definition/testcase3_jmsfilter/README.md)
 
 Test Case 4 demos using the **tc_exec_schedule** file and scripts to run a sequence of testcases to simulate offline, then online Clients.  
-Test Case 4 [Raw Definition file](testcases/raw_definition/tc_exec_schedule.backlog-catchup-simulation) defines the test scenarios, consumers, producers, and test timings.
+Test Case 4 [Raw Definition file](testcases/raw_definition/tc_exec_schedule.backlog-catchup-simulation) defines the test scenarios, consumers, producers, and test timings.  
 [Test Case 4 JMS Offline Consumer with Backlog Scenario](testcases/raw_definition/testcase4_consumers_backlog/README.md)  
 [Test Case 4 JMS Online Consumer with Backlog and Catchup Scenario](testcases/raw_definition/testcase4_consumers_catchup/README.md)  
 [Test Case 4 JMS Producers Definition and Scenario](testcases/raw_definition/testcase4_producers/README.md)  
