@@ -461,7 +461,8 @@ Serveral testcase examples are provided to show howto use the framework to creat
 
 [Test Case 3 JMS Filtering](testcases/raw_definition/testcase3_jmsfilter/README.md)
 
-[Test Case 4 JMS Offline Consumer with Backlog and Catchup](testcases/raw_definition/tc_exec_schedule.backlog-catchup-simulation) 
+[Test Case 4 JMS Offline Consumer with Backlog and Catchup](testcases/raw_definition/testcase4_consumers_backlog/README.md)  
+[Test Case 4 Raw Definition file](testcases/raw_definition/tc_exec_schedule.backlog-catchup-simulation) 
 This test case demos using the tc_exec_schedule file and scripts to run a sequence of testcases to simulate offline, then online Clients.
 
 # 10. Metrics and Monitoring of Test Clients
