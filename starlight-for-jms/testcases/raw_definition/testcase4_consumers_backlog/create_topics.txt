@@ -4,10 +4,10 @@ admin namespaces create MYTENANT4/DLQ
 admin topics create-partitioned-topic persistent://MYTENANT4/NS4/TEST.JMS.TOPIC.P3 -p 3
 admin namespaces set-auto-topic-creation -e -t non-partitioned MYTENANT4/DLQ
 admin namespaces set-auto-subscription-creation -e MYTENANT4/DLQ
-admin topics create-subscription -p "jms.filtering=true" -p "jms.selector= TriggerEventType IN ('AA','AL','01','02','06','07','08','10','12','13','CE') OR ( TEST_MSG_BUCKET <= 73)" -s TEST.JMS.TOPIC.P3:TEST.JMS.Q1 persistent://MYTENANT4/NS4/TEST.JMS.TOPIC.P3
-admin topics create-subscription -p "jms.filtering=true" -p "jms.selector= (GeoCode like '%RUS%') and (TriggerEventType in ('07', '79', '24', '22', '10', '13') and ORIGIN_COUNTRY_CODE <> DEST_COUNTRY_CODE) OR ( TEST_MSG_BUCKET <= 5)" -s TEST.JMS.TOPIC.P3:TEST.JMS.Q2 persistent://MYTENANT4/NS4/TEST.JMS.TOPIC.P3
-admin topics create-subscription -p "jms.filtering=true" -p "jms.selector= TriggerEventType IN ('AA','AL','01','02','06','07','08','10','12','13','CE') OR ( TEST_MSG_BUCKET <= 73)" -s TEST.JMS.TOPIC.P3:TEST.JMS.Q3 persistent://MYTENANT4/NS4/TEST.JMS.TOPIC.P3
-admin topics create-subscription -p "jms.filtering=true" -p "jms.selector= USER12 = TRUE OR ( TEST_MSG_BUCKET <= 4)" -s TEST.JMS.TOPIC.P3:TEST.JMS.Q4 persistent://MYTENANT4/NS4/TEST.JMS.TOPIC.P3
+admin topics create-subscription -p "jms.filtering=true" -p "jms.selector= TriggerEventType IN ('AA','AL','01','02','06','07','08','10','12','13','CE') OR ( TEST_MSG_BUCKET <= 73)" -s TEST.JMS.Q1 persistent://MYTENANT4/NS4/TEST.JMS.TOPIC.P3
+admin topics create-subscription -p "jms.filtering=true" -p "jms.selector= (GeoCode like '%RUS%') and (TriggerEventType in ('07', '79', '24', '22', '10', '13') and ORIGIN_COUNTRY_CODE <> DEST_COUNTRY_CODE) OR ( TEST_MSG_BUCKET <= 5)" -s TEST.JMS.Q2 persistent://MYTENANT4/NS4/TEST.JMS.TOPIC.P3
+admin topics create-subscription -p "jms.filtering=true" -p "jms.selector= TriggerEventType IN ('AA','AL','01','02','06','07','08','10','12','13','CE') OR ( TEST_MSG_BUCKET <= 73)" -s TEST.JMS.Q3 persistent://MYTENANT4/NS4/TEST.JMS.TOPIC.P3
+admin topics create-subscription -p "jms.filtering=true" -p "jms.selector= USER12 = TRUE OR ( TEST_MSG_BUCKET <= 4)" -s TEST.JMS.Q4 persistent://MYTENANT4/NS4/TEST.JMS.TOPIC.P3
 #3000 ibmr/2 part, 2.5x obmr
 #admin topics set-publish-rate -m 1500 persistent://MYTENANT4/NS4/TEST.JMS.TOPIC.P3
 #admin topics set-subscription-dispatch-rate -md 3000 persistent://MYTENANT4/NS4/TEST.JMS.TOPIC.P3
