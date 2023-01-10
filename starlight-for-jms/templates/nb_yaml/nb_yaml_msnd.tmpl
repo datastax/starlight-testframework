@@ -24,11 +24,11 @@ blocks:
   ###################
   # message sender/producer/publisher to a topic
   #------------------
-  msg-producer-block:    
+  msg-producer-block:  
     tags:
       name: "msg-send-block"
       phase: "mst"
-        ops:
+    ops:
       op1:
         MessageProduce: "<TMPL-DEST_NAME>"
         dest_type: "<TMPL-DEST_TYPE>"

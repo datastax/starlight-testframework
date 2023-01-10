@@ -428,9 +428,9 @@ find ${TESTCASE_RAWDEF_HOMEDIR}/* -prune -type d -name "*${tcNamePattern}*" | wh
                     nodeIdntfr=$(echo ${test_exec_idstr} | tr '[:lower:]' '[:upper:]')
                 fi
 
-                generated_nb_yaml_file_name=${nodeIdntfr}-${TCS_NAME}.yaml
-                generated_nb_cfg_file_name=${nodeIdntfr}-${TCS_NAME}.properties
-                generated_nb_cmd_file_name=${nodeIdntfr}-run_${TCS_NAME}.sh
+                generated_nb_yaml_file_name=${nodeIdntfr}--${TCS_NAME}.yaml
+                generated_nb_cfg_file_name=${nodeIdntfr}--${TCS_NAME}.properties
+                generated_nb_cmd_file_name=${nodeIdntfr}--run_${TCS_NAME}.sh
 
                 debugMsg "test_exec_idstr=${test_exec_idstr}"
                 debugMsg "nodeIdntfr=${nodeIdntfr}"

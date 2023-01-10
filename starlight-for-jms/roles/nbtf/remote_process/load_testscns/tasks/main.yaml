@@ -2,7 +2,7 @@
 - name: Copy NB S4J test scenario definition yaml files to the remote host with the matching ID ('scn_id_str')
   copy:
     src: "{{ item }}"
-    dest: "{{ tgt_nbtf_scenario_dir }}/nb_yaml/{{ item.split('-')[1] }}"
+    dest: "{{ tgt_nbtf_scenario_dir }}/nb_yaml/{{ item.split('--')[1] }}"
     owner: "{{ nbtf_user }}"
     group: "{{ nbtf_user_group }}"
     mode: "{{ file_permission_mode_noexec }}"
@@ -13,7 +13,7 @@
 - name: Copy NB S4J test scenario configuration files to the remote host with the matching ID ('scn_id_str')
   copy:
     src: "{{ item }}"
-    dest: "{{ tgt_nbtf_scenario_dir }}/nb_cfg/{{ item.split('-')[1] }}"
+    dest: "{{ tgt_nbtf_scenario_dir }}/nb_cfg/{{ item.split('--')[1] }}"
     owner: "{{ nbtf_user }}"
     group: "{{ nbtf_user_group }}"
     mode: "{{ file_permission_mode_noexec }}"
@@ -24,7 +24,7 @@
 - name: Copy NB S4J test scenario CLI execution bash files to the remote host with the matching ID ('scn_id_str')
   copy:
     src: "{{ item }}"
-    dest: "{{ tgt_nbtf_scenario_dir }}/{{ item.split('-')[1] }}"
+    dest: "{{ tgt_nbtf_scenario_dir }}/{{ item.split('--')[1] }}"
     owner: "{{ nbtf_user }}"
     group: "{{ nbtf_user_group }}"
     mode: "{{ file_permission_mode }}"
