@@ -22,7 +22,7 @@ sudo_needed: true
 
 # - whether to install Java and which version
 install_jdk: true
-openjdk_ver: 11
+openjdk_ver: 17
 
 # - System user and group to run NB based testing framework
 nbtf_user: nbtf
@@ -41,12 +41,12 @@ enable_security: false
 # NB binary related settings
 # -------------------------------------------
 # - NB version to download
-nb_version: 4.15.103
+nb_version: 4.17.32
 
 # - "nb" doesn't require java to run
 # nb_exec_name: "nb"
-# - "nb.jar" needs to be excuted as "java -jar nb.jar ..."
-nb_exec_name: "nb.jar"
+# - "nb.jar" needs to be executed as "java -jar nb.jar ..."
+nb_exec_name: "nb5.jar"
 
 # - whether to replace the remote nb executable file 
 #   even if it exists
@@ -169,7 +169,7 @@ nb_strides_num_deft: 1000
 #   * "-v":   info
 #   * "-vv":  debug
 #   * "-vvv": trace
-nb_log_lvl: "-vv"
+nb_log_lvl: "-v"
 
 # Whether to do strict error handling during message processing
 # - Yes: NB process will shut down for any error during message processing

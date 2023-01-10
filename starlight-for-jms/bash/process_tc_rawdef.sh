@@ -428,9 +428,9 @@ find ${TESTCASE_RAWDEF_HOMEDIR}/* -prune -type d -name "*${tcNamePattern}*" | wh
                     nodeIdntfr=$(echo ${test_exec_idstr} | tr '[:lower:]' '[:upper:]')
                 fi
 
-                generated_nb_yaml_file_name=${nodeIdntfr}-${TCS_NAME}.yaml
-                generated_nb_cfg_file_name=${nodeIdntfr}-${TCS_NAME}.properties
-                generated_nb_cmd_file_name=${nodeIdntfr}-run_${TCS_NAME}.sh
+                generated_nb_yaml_file_name=${nodeIdntfr}--${TCS_NAME}.yaml
+                generated_nb_cfg_file_name=${nodeIdntfr}--${TCS_NAME}.properties
+                generated_nb_cmd_file_name=${nodeIdntfr}--run_${TCS_NAME}.sh
 
                 debugMsg "test_exec_idstr=${test_exec_idstr}"
                 debugMsg "nodeIdntfr=${nodeIdntfr}"
@@ -533,7 +533,12 @@ find ${TESTCASE_RAWDEF_HOMEDIR}/* -prune -type d -name "*${tcNamePattern}*" | wh
 
                 outputMsg "++ creating NB config file: ${GEND_CFG_FILE}"
                 cp -f templates/nb_cfg/s4j_config.tmpl ${GEND_CFG_FILE}
-    
+                if [[ "queue" == "$dest_type" ]]; then
+                     debugMsg "S4J Config Template file for dest_type=${dest_type}"
+                     cp -f templates/nb_cfg/s4j_config_queue.tmpl ${GEND_CFG_FILE}
+                     sed -i "s/<TMPL-SUB_NAME>/${subcrb_name2}/g" ${GEND_CFG_FILE}
+                fi
+   
                 sed -i "s/<TMPL-USER_PASSWORD_SIMULATION>/${simuUserPwd}/g" ${GEND_CFG_FILE}
                 sed -i "s/<TMPL-USE_TRANSCT_STICKY_PARTITION>/${useTransStickyPart}/g" ${GEND_CFG_FILE}
                 sed -i "s/<TMPL-COMPRESSION_TYPE>/${msg_comprs_type}/g" ${GEND_CFG_FILE}

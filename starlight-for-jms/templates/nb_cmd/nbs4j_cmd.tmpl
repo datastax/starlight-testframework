@@ -257,7 +257,7 @@ if [[ ${cycleRateSpecified} -gt 0 ]]; then
 fi
 
 if [[ "${nbLogDir// }" != "" ]]; then
-   NB_SCN_EXEC_BASE="${NB_SCN_EXEC_BASE} --logs-dir=${nbLogDir}"
+   NB_SCN_EXEC_BASE="${NB_SCN_EXEC_BASE} --logs-dir=${nbLogDir} --statedir=${nbLogDir}"
 fi 
 if [[ "${nbLogLvl// }" != "" ]]; then
    NB_SCN_EXEC_BASE="${NB_SCN_EXEC_BASE} ${nbLogLvl}"
@@ -275,7 +275,7 @@ fi
 if [[ ${ctrlExecEnable} -gt 0 ]]; then
    NB_SCN_EXEC_BASE="${NB_SCN_EXEC_BASE} \
       waitmillis $ctrlExecTimeInMillisec \
-      forceStop nb_activity"
+      stop nb_activity"
 fi
 
 echo

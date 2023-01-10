@@ -7,6 +7,8 @@
 # document level parameters that apply to all Pulsar client types:
 params:
   temporary_dest: "false"
+  durable_topic: "true"
+  share_topic: "false"
   async_api: "<TMPL-ASYNC_API>"
   txn_batch_num: "<TMPL-TXN_BATCH_NUM>"
   blocking_msg_recv: "<TMPL-BLOCKING_MSG_RECV>"
@@ -16,14 +18,14 @@ blocks:
   # message receiver/consumer/subscriber from a topic or a queue
   # - subscription: durable, non-shared
   #------------------
-  - name: "msg-read-block"
+  msg-consumer-block:
     tags:
+      name: "msg-read-block"
       phase: "mrd"
-    statements:
-      - name: "s1"
-        optype: "msg_read_durable"
+    ops:
+      ops1:
+        MessageConsume: "<TMPL-DEST_NAME>"
         dest_type: "<TMPL-DEST_TYPE>"
-        dest_name: "<TMPL-DEST_NAME>"
 
         ## Subscription name
         subscription_name: "<TMPL-SUB_NAME>"
